@@ -4,7 +4,10 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -15,56 +18,40 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
-import com.example.mycalendar.core.database.dao.EventDao
-import com.example.mycalendar.core.database.dao.TaskDao
-import com.example.mycalendar.core.database.model.EventEntity
-import com.example.mycalendar.core.database.model.LocationEntity
-import com.example.mycalendar.core.database.model.TaskEntity
-import com.example.mycalendar.core.database.model.EventAndTaskAndLocationAndParticipants
-import com.example.mycalendar.core.database.model.TaskAndUser
-import com.example.mycalendar.core.database.model.UserEntity
-import com.example.mycalendar.core.database.model.toEvent
+import com.example.mycalendar.core.data.model.Event
+import com.example.mycalendar.core.data.model.Task
+import com.example.mycalendar.core.data.repository.EventRepository
+import com.example.mycalendar.core.data.repository.TaskRepository
 import com.example.mycalendar.ui.theme.MyCalendarTheme
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.Date
 import javax.inject.Inject
 
+private const val TAG = "MainActivity"
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val TAG = "MainActivity"
 
-    @Inject lateinit var taskDao: TaskDao
-    @Inject lateinit var eventDao: EventDao
+    @Inject lateinit var taskRepository: TaskRepository
+    @Inject lateinit var eventRepository: EventRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MyCalendarTheme {
-                var taskAndUser by remember {
-                    mutableStateOf(emptyList<TaskAndUser>())
+                var task by remember {
+                    mutableStateOf(emptyList<Task>())
                 }
-                var eventAndTaskAndLocationAndParticipants by remember {
-                    mutableStateOf(EventAndTaskAndLocationAndParticipants(
-                        EventEntity(0,Date(),null,null,null),
-//                        TaskEntity(0,null,null, Date(), "","",null,false, ""),
-                        TaskAndUser(
-                            TaskEntity(0,null,null, Date(), "","",null,false, ""),
-                            UserEntity("","","",false)
-                        ),
-                        LocationEntity(0,0.0,0.0,""),
-                        emptyList()
-
-                    ))
+                var event by remember {
+                    mutableStateOf(Event())
                 }
 
                 LaunchedEffect(key1 = Unit) {
-                    val data0 = taskDao.getAllTasks()
-                    taskAndUser = data0
+                    val data0 = taskRepository.getAllTasks()
+                    task = data0
 
 
-                    val data = eventDao.getEventById(4)
+                    val data = eventRepository.getEventById(4)
                     Log.d(TAG, data.toString())
-                    eventAndTaskAndLocationAndParticipants = data
+                    event = data
                 }
 
                 // A surface container using the 'background' color from the theme
@@ -72,7 +59,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Text(text = eventAndTaskAndLocationAndParticipants.toEvent().toString(), fontSize = 8.sp)
+                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                        Text(text = task.toString(), fontSize = 7.sp)
+                        Text(text = event.toString(), fontSize = 7.sp)
+                    }
                 }
             }
         }
