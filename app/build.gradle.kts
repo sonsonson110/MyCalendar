@@ -6,6 +6,8 @@ plugins {
     // hilt
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
+    // secret keys hiding
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
@@ -43,6 +45,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -81,13 +84,21 @@ dependencies {
     kapt("com.google.dagger:hilt-android-compiler:2.48")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0") // with compose navigation
 
-    // room databse
+    // room database
     val room_version = "2.6.1"
     implementation("androidx.room:room-runtime:$room_version")
     annotationProcessor("androidx.room:room-compiler:$room_version")
     kapt("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version") // Kotlin Extensions and Coroutines support for Room
 
+    // retrofit2 + gson json parser
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.7.1")
+    implementation("com.google.code.gson:gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0") // trace network response
+
+    // image fetch & cache
+    implementation ("com.github.bumptech.glide:compose:1.0.0-beta01")
 }
 // Allow references to generated code
 kapt {

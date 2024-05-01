@@ -7,3 +7,10 @@ plugins {
     // hilt
     id("com.google.dagger.hilt.android") version "2.48" apply false
 }
+
+buildscript {
+    dependencies {
+        // hiding api keys plugin
+        classpath("com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin:2.0.1")
+    }
+}

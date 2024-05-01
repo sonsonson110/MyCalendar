@@ -22,6 +22,8 @@ import com.example.mycalendar.core.data.model.Event
 import com.example.mycalendar.core.data.model.Task
 import com.example.mycalendar.core.data.repository.EventRepository
 import com.example.mycalendar.core.data.repository.TaskRepository
+import com.example.mycalendar.core.network.OpenWeatherMapNetwork
+import com.example.mycalendar.core.network.model.NetworkWeather
 import com.example.mycalendar.ui.theme.MyCalendarTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -32,6 +34,7 @@ class MainActivity : ComponentActivity() {
 
     @Inject lateinit var taskRepository: TaskRepository
     @Inject lateinit var eventRepository: EventRepository
+    @Inject lateinit var openWeatherMapNetwork: OpenWeatherMapNetwork
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,14 +47,21 @@ class MainActivity : ComponentActivity() {
                     mutableStateOf(Event())
                 }
 
+                var weather by remember {
+                    mutableStateOf(NetworkWeather())
+                }
+
                 LaunchedEffect(key1 = Unit) {
-                    val data0 = taskRepository.getAllTasks()
-                    task = data0
+//                    val data0 = taskRepository.getAllTasks()
+//                    task = data0
+//
+//
+//                    val data = eventRepository.getEventById(4)
+//                    Log.d(TAG, data.toString())
+//                    event = data
 
-
-                    val data = eventRepository.getEventById(4)
-                    Log.d(TAG, data.toString())
-                    event = data
+                    val data1 = openWeatherMapNetwork.getCurrentWeather(20.0,100.0)
+                    weather = data1
                 }
 
                 // A surface container using the 'background' color from the theme
@@ -60,8 +70,9 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                        Text(text = task.toString(), fontSize = 7.sp)
-                        Text(text = event.toString(), fontSize = 7.sp)
+                        Text(text = weather.toString(), fontSize = 7.sp)
+//                        Text(text = task.toString(), fontSize = 7.sp)
+//                        Text(text = event.toString(), fontSize = 7.sp)
                     }
                 }
             }

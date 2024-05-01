@@ -5,8 +5,12 @@
 
 ## Features
 - Firebase integration
+  - Authentication
 - Develop UI with Jetpack Compose
 - Follow MVVM architectural pattern
 - Dependency Injection with Hilt
 - Store persistence data with Jetpack Room database
 - Fetch from internet with Retrofit
+  - Weather Api from https://openweathermap.org/api
+  - Location Api from https://docs.locationiq.com/api
+- Hide secret keys with [Secrets Gradle Plugin](https://github.com/google/secrets-gradle-plugin)
