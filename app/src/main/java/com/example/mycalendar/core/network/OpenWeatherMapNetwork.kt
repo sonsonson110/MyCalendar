@@ -16,7 +16,7 @@ import javax.inject.Singleton
     Retrofit API declaration for OpenWeatherMap
  */
 interface RetrofitOpenWeatherMapApi {
-    @GET(value = "weather")
+    @GET(value = "weather?units=metric")
     suspend fun getCurrentWeather(
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,

@@ -4,6 +4,8 @@ import com.example.mycalendar.core.data.repository.EventRepository
 import com.example.mycalendar.core.data.repository.EventRepositoryImpl
 import com.example.mycalendar.core.data.repository.TaskRepository
 import com.example.mycalendar.core.data.repository.TaskRepositoryImpl
+import com.example.mycalendar.core.data.repository.WeatherRepository
+import com.example.mycalendar.core.data.repository.WeatherRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -21,4 +23,9 @@ abstract class DataModule {
     abstract fun bindsEventRepository(
         eventRepository: EventRepositoryImpl,
     ): EventRepository
+
+    @Binds
+    abstract fun bindsWeatherRepository(
+        weatherRepository: WeatherRepositoryImpl,
+    ): WeatherRepository
 }
