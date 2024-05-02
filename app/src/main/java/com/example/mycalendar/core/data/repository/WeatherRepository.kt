@@ -17,7 +17,7 @@ class WeatherRepositoryImpl @Inject constructor(
     private val openWeatherMapNetwork: OpenWeatherMapNetwork,
 ): WeatherRepository {
     override suspend fun getCurrentWeather(lat: Double, lon: Double): Flow<Weather> = flow {
-        val response = openWeatherMapNetwork.getCurrentWeather(lon, lat).toWeather()
-        emit(response)
+        val response = openWeatherMapNetwork.getCurrentWeather(lon, lat)
+        emit(response.toWeather())
     }.flowOn(Dispatchers.IO)
 }

@@ -9,7 +9,7 @@ import com.example.mycalendar.core.data.model.Location
 data class LocationEntity(
     @PrimaryKey
     @ColumnInfo(name = "place_id")
-    val placeId: Int,
+    val placeId: Long,
     val lon: Double,
     val lat: Double,
     @ColumnInfo(name = "display_name") val displayName: String,

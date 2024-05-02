@@ -7,47 +7,60 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.sp
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.example.mycalendar.core.data.model.Location
 import com.example.mycalendar.core.data.model.NetworkResult
-import com.example.mycalendar.core.data.model.Weather
-import com.example.mycalendar.core.data.repository.WeatherRepository
+import com.example.mycalendar.core.data.repository.LocationRepository
 import com.example.mycalendar.ui.theme.MyCalendarTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val TAG = "MainActivity"
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @Inject
-    lateinit var weatherRepository: WeatherRepository
 
+    @Inject
+    lateinit var locationRepository: LocationRepository
+
+    @OptIn(ExperimentalGlideComposeApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MyCalendarTheme {
-                var weather by remember {
-                    mutableStateOf<NetworkResult<Weather>>(NetworkResult.Loading())
+
+                var currentLocation by remember {
+                    mutableStateOf<NetworkResult<Location>>(NetworkResult.Loading())
                 }
 
+                var autocompleteLocations by remember {
+                    mutableStateOf<NetworkResult<List<Location>>>(NetworkResult.Empty())
+                }
+
+                val coroutineScope = rememberCoroutineScope()
+
                 LaunchedEffect(key1 = Unit) {
-                    weatherRepository.getCurrentWeather(lon = 20.0, lat = 100.0)
+                    locationRepository.getCurrentLocationNameFromNetwork(lat = 20.0, lon = 100.0)
                         .catch { e ->
-                            weather = NetworkResult.Error(message = e.toString())
+                            currentLocation = NetworkResult.Error(message = e.toString())
                         }
                         .collect { data ->
-                            weather = NetworkResult.Success(data = data)
+                            currentLocation = NetworkResult.Success(data = data)
                         }
                 }
 
@@ -57,10 +70,36 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                        when (weather) {
+                        when(currentLocation) {
                             is NetworkResult.Loading -> LinearProgressIndicator()
-                            is NetworkResult.Error -> Text(text = weather.message.toString(), fontSize = 7.sp)
-                            else -> Text(text = weather.data.toString(), fontSize = 7.sp)
+                            is NetworkResult.Error -> Text(text = currentLocation.message!!)
+                            else -> Text(text = currentLocation.data.toString())
+                        }
+                        var query by remember { mutableStateOf("") }
+                        TextField(value = query, onValueChange = { query = it })
+                        Button(onClick = {
+                            coroutineScope.launch {
+                                if (query.length <= 3) return@launch
+                                autocompleteLocations = NetworkResult.Loading()
+                                locationRepository.getAutocompleteLocationsFromNetwork(query)
+                                    .catch { e ->
+                                        autocompleteLocations = NetworkResult.Error(message = e.toString())
+                                    }
+                                    .collect { data ->
+                                        autocompleteLocations = if (data.isEmpty())
+                                            NetworkResult.Empty()
+                                        else
+                                            NetworkResult.Success(data = data)
+                                    }
+                            }
+                        }) {
+                            Text("Search")
+                        }
+                        when(autocompleteLocations) {
+                            is NetworkResult.Empty -> Text("Field empty")
+                            is NetworkResult.Error -> Text(autocompleteLocations.message!!)
+                            is NetworkResult.Loading -> LinearProgressIndicator()
+                            is NetworkResult.Success -> Text(autocompleteLocations.data.toString())
                         }
                     }
                 }

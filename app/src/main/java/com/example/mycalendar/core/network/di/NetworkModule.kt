@@ -1,5 +1,6 @@
 package com.example.mycalendar.core.network.di
 
+import com.example.mycalendar.core.network.LocationIqNetwork
 import com.example.mycalendar.core.network.OpenWeatherMapNetwork
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -34,5 +35,11 @@ object NetworkModule {
     @Singleton
     fun providesOpenWeatherMapNetwork(gson: Gson, okHttpClient: OkHttpClient): OpenWeatherMapNetwork {
         return OpenWeatherMapNetwork(gson, okHttpClient)
+    }
+
+    @Provides
+    @Singleton
+    fun providesLocationIqNetwork(gson: Gson, okHttpClient: OkHttpClient): LocationIqNetwork {
+        return LocationIqNetwork(gson, okHttpClient)
     }
 }
