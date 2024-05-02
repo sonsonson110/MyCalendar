@@ -7,17 +7,17 @@ data class Event(
     val id: Int = 0,
     val title: String? = null,
     val description: String? = null,
-    val startTime: Date = Date(),
-    val type: String = "",
-    val timeZone: String = "",
+    val startTime: Date? = null,
+    val type: String? = null,
+    val timeZone: String? = null,
     val reminderOffsetSeconds: Int? = null,
     val isCompleted: Boolean = false,
-    val createdUser: User = User(),
+    val createdUser: User? = null,
     // End Task inheritance properties
 
-    val endTime: Date = Date(),
+    val endTime: Date? = null,
     val conferenceUrl: String? = null,
     val colorHex: String? = null,
     val location: Location? = null,
-    val participants: List<User> = emptyList(),
+    val participants: List<User>? = null,
 )
