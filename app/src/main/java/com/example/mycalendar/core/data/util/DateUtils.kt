@@ -32,3 +32,13 @@ fun Date.addFromTime(time: Date): Date {
     calendar.add(Calendar.MINUTE, time.minutes)
     return calendar.time
 }
+
+fun Date.toDayNameInWeek(): String {
+    val timeFormat = SimpleDateFormat("EEE")
+    return timeFormat.format(this)
+}
+
+fun Date.toDayInMonth(): String {
+    val timeFormat = SimpleDateFormat("d")
+    return timeFormat.format(this)
+}

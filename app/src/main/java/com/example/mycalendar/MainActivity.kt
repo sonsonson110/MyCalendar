@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     LaunchedEffect(key1 = Unit) {
-                        task = taskRepository.getTaskById(5)
+                        task = taskRepository.getTaskById(3)
                         tasksCount = taskRepository.getAllTasks().size
                     }
 
@@ -123,6 +123,7 @@ class MainActivity : ComponentActivity() {
                         Button(onClick = {
                             coroutineScope.launch {
                                 taskRepository.deleteTask(task)
+                                tasksCount = taskRepository.getAllTasks().size
                             }
                         }) {
                             Text(text = "DELETE ${task.id} FROM DATABASE")

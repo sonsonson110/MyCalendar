@@ -14,3 +14,7 @@
   - Weather Api from https://openweathermap.org/api
   - Location Api from https://docs.locationiq.com/api
 - Hide secret keys with [Secrets Gradle Plugin](https://github.com/google/secrets-gradle-plugin)
+
+## Other researches
+- Sticky header: https://fvilarino.medium.com/creating-a-sticky-letter-list-in-jetpack-compose-2e7e9c8f9b91
+- Data grouping: https://www.youtube.com/watch?v=fG3FjhF2bCg
