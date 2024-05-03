@@ -26,44 +26,63 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.mycalendar.core.data.model.ITask
 import com.example.mycalendar.core.data.model.Task
 import java.util.Date
 
 @Composable
-fun <T : Task> StickyTaskList(
+fun <T : ITask> StickyTaskList(
     items: List<T>,
     modifier: Modifier = Modifier,
     gutterWidth: Dp = 80.dp,
+    // the sticky factory lies inside a Box, so BoxScope provides the scope for the parent call implementation
     stickyFactory: @Composable BoxScope.(initial: Date) -> Unit,
     itemFactory: @Composable (T) -> Unit,
 ) {
     val state: LazyListState = rememberLazyListState()
 
+    // put a Box on the top left gutter, this is where the initial is placed
     Box(modifier = modifier
         .composed {
             var initial: Date? = null
+
+            // iterate through the current visible items on the screen
             state.layoutInfo.visibleItemsInfo.forEachIndexed { index, itemInfo ->
 
+                // the current initial of the item
                 val itemInitial = items[itemInfo.index].startTime
 
+                // if the current iterating item is different initial from the last item's...
+                //  else show NO initial for that item
                 if (itemInitial != initial) {
+                    //  1. replace the last initial
                     initial = itemInitial
+
+                    //  2. get the info of the next item
                     val nextInitial = items.getOrNull(itemInfo.index + 1)?.startTime
+
+                    //  3. get the offset of the current item, turn it into 'dp' metric
                     val offsetDp = with(LocalDensity.current) {
                         itemInfo.offset.toDp()
                     }
+                    //  4. if the current item is not the first item in visible items, or
+                    // the next initial is different from the current initial
                     Box(
                         modifier = if (index != 0 || itemInitial != nextInitial) {
+                            // the initial y-axis value is now following the item offset
                             Modifier.offset(x = 0.dp, y = offsetDp)
-                        } else Modifier,
+                        } else {
+                            // or continue sticking to the top left
+                            Modifier
+                        },
                     ) {
-                        stickyFactory(initial = itemInitial!!)
+                        stickyFactory(itemInitial!!)
                     }
                 }
             }
             this
         }
-        // prevent initial leaking out side the view
+        // prevent initial leaking outside the view
         .clip(RectangleShape)) {
         LazyColumn(
             state = state,
@@ -81,7 +100,7 @@ fun <T : Task> StickyTaskList(
 @Preview
 @Composable
 fun StickyTaskListPreview() {
-    val taskList = mutableListOf<Task>()
+    val taskList = mutableListOf<ITask>()
     for (i in 1..10) {
         taskList.add(
             Task(

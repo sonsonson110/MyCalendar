@@ -4,16 +4,20 @@ import com.example.mycalendar.core.database.model.TaskEntity
 import java.util.Date
 
 data class Task(
-    val id: Int = 0,
-    val title: String? = null,
-    val description: String? = null,
-    val startTime: Date? = null,
-    val type: String? = null,
-    val timeZone: String? = null,
-    val reminderOffsetSeconds: Int? = null,
-    val isCompleted: Boolean? = null,
-    val createdUser: User? = null,
-)
+    override val id: Int = 0,
+    override val title: String? = null,
+    override val description: String? = null,
+    override val startTime: Date? = null,
+    override val type: String? = null,
+    override val timeZone: String? = null,
+    override val reminderOffsetSeconds: Int? = null,
+    override val isCompleted: Boolean? = null,
+    override val createdUser: User? = null,
+
+    override val endTime: Date? = null,
+    override val colorHex: String? = null,
+    override val location: Location? = null,
+): ITask
 
 fun Task.toTaskEntity() = TaskEntity(
     id = this.id,

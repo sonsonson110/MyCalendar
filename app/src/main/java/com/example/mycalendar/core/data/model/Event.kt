@@ -4,20 +4,20 @@ import java.util.Date
 
 data class Event(
     // Task inheritance properties
-    val id: Int = 0,
-    val title: String? = null,
-    val description: String? = null,
-    val startTime: Date? = null,
-    val type: String? = null,
-    val timeZone: String? = null,
-    val reminderOffsetSeconds: Int? = null,
-    val isCompleted: Boolean = false,
-    val createdUser: User? = null,
+    override val id: Int = 0,
+    override val title: String? = null,
+    override val description: String? = null,
+    override val startTime: Date? = null,
+    override val type: String? = null,
+    override val timeZone: String? = null,
+    override val reminderOffsetSeconds: Int? = null,
+    override val isCompleted: Boolean = false,
+    override val createdUser: User? = null,
     // End Task inheritance properties
 
-    val endTime: Date? = null,
+    override val endTime: Date? = null,
     val conferenceUrl: String? = null,
-    val colorHex: String? = null,
-    val location: Location? = null,
+    override val colorHex: String? = null,
+    override val location: Location? = null,
     val participants: List<User>? = null,
-)
+): ITask
