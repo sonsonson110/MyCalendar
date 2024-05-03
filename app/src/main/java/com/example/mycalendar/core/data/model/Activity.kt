@@ -1,5 +1,6 @@
 package com.example.mycalendar.core.data.model
 
+import com.example.mycalendar.core.database.model.ActivityEntity
 import java.util.Date
 
 data class Activity(
@@ -18,4 +19,20 @@ data class Activity(
     val colorHex: Long? = null,
     val location: Location? = null,
     val participants: List<User>? = null,
+)
+
+fun Activity.toActivityEntity() = ActivityEntity(
+    id = this.id,
+    title = this.title,
+    description = this.description,
+    startTime = this.startTime!!,
+    type = this.type!!,
+    timeZone = this.timeZone!!,
+    reminderOffsetSeconds = this.reminderOffsetSeconds,
+    isCompleted = this.isCompleted,
+    createdByUid = this.createdUser!!.uid!!,
+    endTime = this.endTime,
+    conferenceUrl = this.conferenceUrl,
+    colorHex = this.colorHex,
+    placeId = this.location?.placeId
 )

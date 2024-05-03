@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            var activities by remember { mutableStateOf(emptyList<Activity>()) }
+            var activities by remember { mutableStateOf(Activity()) }
             
             MyCalendarTheme {
                 // A surface container using the 'background' color from the theme
@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     LaunchedEffect(key1 = Unit) {
-                        activities = activityRepository.getAllPlainActivity()
+                        activities = activityRepository.getActivityDetailById(4)
                     }
                     Text(text = activities.toString())
                 }
