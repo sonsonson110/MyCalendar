@@ -20,6 +20,6 @@ object DatabaseModule {
     ): MyCalendarDatabase = Room.databaseBuilder(
         context,
         MyCalendarDatabase::class.java,
-        "app-db2.db",
-    ).createFromAsset("app-db2.db").build()
+        "app-db3.db",
+    ).createFromAsset("app-db3.db").build()
 }

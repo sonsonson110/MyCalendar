@@ -26,18 +26,17 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.example.mycalendar.core.data.model.ITask
-import com.example.mycalendar.core.data.model.Task
+import com.example.mycalendar.core.data.model.Activity
 import java.util.Date
 
 @Composable
-fun <T : ITask> StickyTaskList(
-    items: List<T>,
+fun StickyTaskList(
+    items: List<Activity>,
     modifier: Modifier = Modifier,
     gutterWidth: Dp = 80.dp,
     // the sticky factory lies inside a Box, so BoxScope provides the scope for the parent call implementation
     stickyFactory: @Composable BoxScope.(initial: Date) -> Unit,
-    itemFactory: @Composable (T) -> Unit,
+    itemFactory: @Composable (Activity) -> Unit,
 ) {
     val state: LazyListState = rememberLazyListState()
 
@@ -100,46 +99,20 @@ fun <T : ITask> StickyTaskList(
 @Preview
 @Composable
 fun StickyTaskListPreview() {
-    val taskList = mutableListOf<ITask>()
-    for (i in 1..10) {
-        taskList.add(
-            Task(
-                title = "Task number 1",
-                description = null,
-                startTime = Date(1715642093L),
-                type = "task",
-                timeZone = "Asia/Ho_Chi_Minh",
-                reminderOffsetSeconds = 600,
-                isCompleted = false,
-            )
-        )
-    }
-    for (i in 1..10) {
-        taskList.add(
-            Task(
-                title = "Task number 1",
-                description = null,
-                startTime = Date(1815642093L),
-                type = "task",
-                timeZone = "Asia/Ho_Chi_Minh",
-                reminderOffsetSeconds = 600,
-                isCompleted = false,
-            )
-        )
-    }
-    for (i in 1..10) {
-        taskList.add(
-            Task(
-                title = "Task number 1",
-                description = null,
-                startTime = Date(1615642093L),
-                type = "task",
-                timeZone = "Asia/Ho_Chi_Minh",
-                reminderOffsetSeconds = 600,
-                isCompleted = false,
-            )
-        )
-    }
+//    val taskList = mutableListOf<ITask>()
+//    for (i in 1..10) {
+//        taskList.add(
+//            Task(
+//                title = "Task number 1",
+//                description = null,
+//                startTime = Date(1715642093L),
+//                type = "task",
+//                timeZone = "Asia/Ho_Chi_Minh",
+//                reminderOffsetSeconds = 600,
+//                isCompleted = false,
+//            )
+//        )
+//    }
     Box(
         modifier = Modifier
             .background(Color.White)
@@ -148,7 +121,7 @@ fun StickyTaskListPreview() {
             .padding(top = 80.dp)
     ) {
         StickyTaskList(
-            items = taskList,
+            items = emptyList(),
             stickyFactory = { date ->
                 Box(modifier = Modifier.width(80.dp)) {
                     Text(text = date.toString(), modifier = Modifier.align(Alignment.Center))

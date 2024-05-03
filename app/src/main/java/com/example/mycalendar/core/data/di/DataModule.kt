@@ -1,11 +1,9 @@
 package com.example.mycalendar.core.data.di
 
-import com.example.mycalendar.core.data.repository.EventRepository
-import com.example.mycalendar.core.data.repository.EventRepositoryImpl
+import com.example.mycalendar.core.data.repository.ActivityRepository
+import com.example.mycalendar.core.data.repository.ActivityRepositoryImpl
 import com.example.mycalendar.core.data.repository.LocationRepository
 import com.example.mycalendar.core.data.repository.LocationRepositoryImpl
-import com.example.mycalendar.core.data.repository.TaskRepository
-import com.example.mycalendar.core.data.repository.TaskRepositoryImpl
 import com.example.mycalendar.core.data.repository.WeatherRepository
 import com.example.mycalendar.core.data.repository.WeatherRepositoryImpl
 import dagger.Binds
@@ -17,14 +15,9 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 abstract class DataModule {
     @Binds
-    abstract fun bindsTaskRepository(
-        taskRepository: TaskRepositoryImpl,
-    ): TaskRepository
-
-    @Binds
-    abstract fun bindsEventRepository(
-        eventRepository: EventRepositoryImpl,
-    ): EventRepository
+    abstract fun bindsActivityRepository(
+        activityRepository: ActivityRepositoryImpl,
+    ): ActivityRepository
 
     @Binds
     abstract fun bindsWeatherRepository(
