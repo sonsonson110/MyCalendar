@@ -14,9 +14,9 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
@@ -27,10 +27,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.mycalendar.core.data.model.Activity
+import com.example.mycalendar.ui.theme.MyCalendarTheme
 import java.util.Date
 
 @Composable
-fun StickyTaskList(
+fun StickyActivityList(
     items: List<Activity>,
     modifier: Modifier = Modifier,
     gutterWidth: Dp = 80.dp,
@@ -98,41 +99,37 @@ fun StickyTaskList(
 
 @Preview
 @Composable
-fun StickyTaskListPreview() {
-//    val taskList = mutableListOf<ITask>()
-//    for (i in 1..10) {
-//        taskList.add(
-//            Task(
-//                title = "Task number 1",
-//                description = null,
-//                startTime = Date(1715642093L),
-//                type = "task",
-//                timeZone = "Asia/Ho_Chi_Minh",
-//                reminderOffsetSeconds = 600,
-//                isCompleted = false,
-//            )
-//        )
-//    }
-    Box(
-        modifier = Modifier
-            .background(Color.White)
-            .fillMaxSize()
-            // simulate an top app bar
-            .padding(top = 80.dp)
-    ) {
-        StickyTaskList(
-            items = emptyList(),
-            stickyFactory = { date ->
-                Box(modifier = Modifier.width(80.dp)) {
-                    Text(text = date.toString(), modifier = Modifier.align(Alignment.Center))
-                }
-            },
-            itemFactory = { task ->
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(text = task.toString())
-                    Divider(modifier = Modifier.fillMaxWidth())
-                }
-            },
-        )
+fun StickyActivityListPreview() {
+    val activities = mutableListOf<Activity>()
+    for (i in 1..10)
+        activities.add(Activity(startTime = Date(1715642093L)))
+    for (i in 1..10)
+        activities.add(Activity(startTime = Date(1815642093L)))
+    for (i in 1..10)
+        activities.add(Activity(startTime = Date(1915642093L)))
+
+    val gutterWidth = 60.dp
+    MyCalendarTheme {
+        Surface(
+            modifier = Modifier
+                .background(Color.White)
+                .fillMaxSize()
+                // simulate an top app bar
+                .padding(top = 80.dp)
+        ) {
+            StickyActivityList(
+                items = activities,
+                gutterWidth = gutterWidth,
+                stickyFactory = { date ->
+                    StickyDateLabel(date = date, isToday = true, modifier = Modifier.width(gutterWidth))
+                },
+                itemFactory = { activity ->
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(text = activity.toString())
+                        Divider(modifier = Modifier.fillMaxWidth())
+                    }
+                },
+            )
+        }
     }
 }

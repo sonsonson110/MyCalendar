@@ -1,6 +1,7 @@
 package com.example.mycalendar.ui.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
@@ -23,38 +24,41 @@ import java.util.Date
 
 @Composable
 fun StickyDateLabel(date: Date, isToday: Boolean, modifier: Modifier = Modifier) {
+    val nameInWeekTypography = Typography.labelMedium
+    val dateInMonthTypography = Typography.labelLarge
     Box(modifier = modifier) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(2.dp),
             modifier = Modifier.align(Alignment.Center)
         ) {
             if (!isToday) {
                 Text(
                     text = date.toDayNameInWeek(),
-                    style = Typography.titleMedium,
+                    style = nameInWeekTypography,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = date.toDayInMonth(),
-                    style = Typography.titleLarge,
+                    style = dateInMonthTypography,
                     color = MaterialTheme.colorScheme.onSurface
                 )
             } else {
                 Text(
                     text = date.toDayNameInWeek(),
-                    style = Typography.titleMedium,
+                    style = nameInWeekTypography,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Box(
                     modifier = Modifier
-                        .clip(CircleShape)
+                        .clip(MaterialTheme.shapes.large)
                         .background(MaterialTheme.colorScheme.primary)
-                        .size(36.dp)
+                        .size(28.dp)
 
                 ) {
                     Text(
                         text = date.toDayInMonth(),
-                        style = Typography.titleLarge,
+                        style = dateInMonthTypography,
                         color = MaterialTheme.colorScheme.onPrimary,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.align(Alignment.Center)
