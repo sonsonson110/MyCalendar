@@ -1,11 +1,10 @@
 package com.example.mycalendar.ui.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -13,9 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -88,7 +85,8 @@ fun StickyActivityList(
             state = state,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = gutterWidth)
+                .padding(start = gutterWidth),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(items) { item ->
                 itemFactory(item)
@@ -124,10 +122,7 @@ fun StickyActivityListPreview() {
                     StickyDateLabel(date = date, isToday = true, modifier = Modifier.width(gutterWidth))
                 },
                 itemFactory = { activity ->
-                    Column(modifier = Modifier.fillMaxWidth()) {
-                        Text(text = activity.toString())
-                        Divider(modifier = Modifier.fillMaxWidth())
-                    }
+                    ActivitySummaryLabel(activity = activity)
                 },
             )
         }

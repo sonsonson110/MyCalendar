@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -13,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,8 +24,9 @@ import java.util.Date
 
 @Composable
 fun StickyDateLabel(date: Date, isToday: Boolean, modifier: Modifier = Modifier) {
-    val nameInWeekTypography = Typography.labelMedium
-    val dateInMonthTypography = Typography.labelLarge
+    val nameInWeekTypography = Typography.bodyMedium
+    val dateInMonthTypography = Typography.bodyLarge
+    val fontWeight = FontWeight.Medium
     Box(modifier = modifier) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -36,24 +37,27 @@ fun StickyDateLabel(date: Date, isToday: Boolean, modifier: Modifier = Modifier)
                 Text(
                     text = date.toDayNameInWeek(),
                     style = nameInWeekTypography,
+                    fontWeight = fontWeight,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = date.toDayInMonth(),
                     style = dateInMonthTypography,
+                    fontWeight = fontWeight,
                     color = MaterialTheme.colorScheme.onSurface
                 )
             } else {
                 Text(
                     text = date.toDayNameInWeek(),
                     style = nameInWeekTypography,
+                    fontWeight = fontWeight,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Box(
                     modifier = Modifier
                         .clip(MaterialTheme.shapes.large)
                         .background(MaterialTheme.colorScheme.primary)
-                        .size(28.dp)
+                        .size(34.dp)
 
                 ) {
                     Text(
@@ -61,6 +65,7 @@ fun StickyDateLabel(date: Date, isToday: Boolean, modifier: Modifier = Modifier)
                         style = dateInMonthTypography,
                         color = MaterialTheme.colorScheme.onPrimary,
                         textAlign = TextAlign.Center,
+                        fontWeight = fontWeight,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
