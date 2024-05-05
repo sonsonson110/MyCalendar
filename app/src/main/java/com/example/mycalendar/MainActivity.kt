@@ -15,6 +15,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.example.mycalendar.core.data.model.Activity
 import com.example.mycalendar.core.data.repository.ActivityRepository
+import com.example.mycalendar.feature.auth.login.LoginScreen
+import com.example.mycalendar.feature.auth.signup.SignupScreen
 import com.example.mycalendar.ui.theme.MyCalendarTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -23,8 +25,6 @@ private const val TAG = "MainActivity"
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    @Inject lateinit var activityRepository: ActivityRepository
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,10 +37,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    LaunchedEffect(key1 = Unit) {
-                        activities = activityRepository.getActivityDetailById(4)
-                    }
-                    Text(text = activities.toString())
+                    SignupScreen()
                 }
             }
         }

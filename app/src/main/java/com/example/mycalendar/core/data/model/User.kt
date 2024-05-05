@@ -15,3 +15,8 @@ fun User.toUserEntity() = UserEntity(
     email = this.email!!,
     isSelf = this.isSelf!!
 )
+
+fun User.toUserMap() = hashMapOf(
+    "name" to this.name,
+    "email" to this.email
+)

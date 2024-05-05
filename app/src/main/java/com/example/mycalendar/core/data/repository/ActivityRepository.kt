@@ -4,8 +4,9 @@ import com.example.mycalendar.core.data.model.Activity
 import com.example.mycalendar.core.data.model.toActivityEntity
 import com.example.mycalendar.core.database.dao.ActivityDao
 import com.example.mycalendar.core.database.model.ActivityEntity
-import com.example.mycalendar.core.database.model.ActivityWithLocationAndUserAndParticipants
 import com.example.mycalendar.core.database.model.toActivity
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 interface ActivityRepository {
@@ -16,7 +17,8 @@ interface ActivityRepository {
     suspend fun deleteActivity(activity: Activity)
 }
 
-class ActivityRepositoryImpl @Inject constructor(private val activityDao: ActivityDao): ActivityRepository {
+class ActivityRepositoryImpl @Inject constructor(private val activityDao: ActivityDao) :
+    ActivityRepository {
     override suspend fun getAllPlainActivity(): List<Activity> {
         return activityDao.getAllActivityEntity().map(ActivityEntity::toActivity)
     }

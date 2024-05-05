@@ -78,6 +78,10 @@ dependencies {
     // firebase
     implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
     implementation("com.google.firebase:firebase-analytics")
+    // auth
+    implementation("com.google.firebase:firebase-auth")
+    // firestore
+    implementation("com.google.firebase:firebase-firestore")
 
     // hilt di
     implementation("com.google.dagger:hilt-android:2.48")

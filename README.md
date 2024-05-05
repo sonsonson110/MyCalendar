@@ -6,6 +6,7 @@
 ## Features
 - Firebase integration
   - [Authentication](https://firebase.google.com/docs/auth)
+  - [Firestore](https://firebase.google.com/docs/firestore/quickstart): store app's remote data
 - Develop UI with [Jetpack Compose](https://developer.android.com/develop/ui/compose)
 - Follow MVVM architectural pattern with [ViewModel library](https://developer.android.com/topic/libraries/architecture/viewmodel)
 - Dependency Injection with [Hilt](https://developer.android.com/training/dependency-injection/hilt-android)

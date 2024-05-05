@@ -2,8 +2,12 @@ package com.example.mycalendar.core.data.di
 
 import com.example.mycalendar.core.data.repository.ActivityRepository
 import com.example.mycalendar.core.data.repository.ActivityRepositoryImpl
+import com.example.mycalendar.core.data.repository.AuthRepository
+import com.example.mycalendar.core.data.repository.AuthRepositoryImpl
 import com.example.mycalendar.core.data.repository.LocationRepository
 import com.example.mycalendar.core.data.repository.LocationRepositoryImpl
+import com.example.mycalendar.core.data.repository.UserRepository
+import com.example.mycalendar.core.data.repository.UserRepositoryImpl
 import com.example.mycalendar.core.data.repository.WeatherRepository
 import com.example.mycalendar.core.data.repository.WeatherRepositoryImpl
 import dagger.Binds
@@ -18,6 +22,16 @@ abstract class DataModule {
     abstract fun bindsActivityRepository(
         activityRepository: ActivityRepositoryImpl,
     ): ActivityRepository
+
+    @Binds
+    abstract fun bindsAuthRepository(
+        authRepository: AuthRepositoryImpl,
+    ): AuthRepository
+
+    @Binds
+    abstract fun bindsUserRepository(
+        userRepository: UserRepositoryImpl,
+    ): UserRepository
 
     @Binds
     abstract fun bindsWeatherRepository(
