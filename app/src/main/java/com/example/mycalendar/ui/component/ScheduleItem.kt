@@ -1,6 +1,7 @@
 package com.example.mycalendar.ui.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,17 +22,20 @@ import com.example.mycalendar.core.data.model.Location
 import com.example.mycalendar.core.data.util.toDayTime
 import com.example.mycalendar.ui.theme.MyCalendarTheme
 import com.example.mycalendar.ui.theme.Typography
+import com.example.mycalendar.ui.theme.defaultTypeColor
 import java.util.Date
 
 @Composable
-fun ActivitySummaryLabel(
+fun ScheduleItem(
     activity: Activity,
+    onClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier
             .clip(MaterialTheme.shapes.medium)
-            .background(Color(activity.colorHex ?: 4283668945))
+            .background(activity.colorHex?.let { Color(it) } ?: defaultTypeColor)
+            .clickable { onClick(activity.id) }
     ) {
         Column(
             horizontalAlignment = Alignment.Start,
@@ -41,9 +45,9 @@ fun ActivitySummaryLabel(
         ) {
             Text(
                 text = activity.title ?: "No title",
-                style = Typography.bodyLarge,
+                style = Typography.bodyMedium,
                 color = Color.White,
-                fontWeight = FontWeight.W600,
+                fontWeight = FontWeight.W500,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 2,
                 modifier = Modifier.fillMaxWidth()
@@ -51,21 +55,14 @@ fun ActivitySummaryLabel(
             if (activity.type == "event") {
                 Text(
                     text = activity.startTime!!.toDayTime() + " - " + activity.endTime!!.toDayTime(),
-                    style = Typography.bodyLarge,
+                    style = Typography.bodyMedium,
                     color = Color.White,
                     modifier = Modifier.fillMaxWidth()
                 )
-                if (activity.location != null)
-                    Text(
-                        text = activity.location.displayName!!,
-                        style = Typography.bodyLarge,
-                        color = Color.White,
-                        modifier = Modifier.fillMaxWidth()
-                    )
             } else
                 Text(
                     text = activity.startTime!!.toDayTime(),
-                    style = Typography.bodyLarge,
+                    style = Typography.bodyMedium,
                     color = Color.White,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
@@ -77,22 +74,23 @@ fun ActivitySummaryLabel(
 
 @Composable
 @Preview(showBackground = true)
-fun TaskActivitySummaryLabelPreview() {
+fun TaskActivityItemPreview() {
     MyCalendarTheme {
-        ActivitySummaryLabel(
+        ScheduleItem(
             activity = Activity(
                 type = "task",
                 startTime = Date(2000, 10, 14, 10, 14, 20)
-            )
+            ),
+            onClick = {}
         )
     }
 }
 
 @Composable
 @Preview(showBackground = true)
-fun EventActivitySummaryLabelPreview() {
+fun EventActivityItemPreview() {
     MyCalendarTheme {
-        ActivitySummaryLabel(
+        ScheduleItem(
             activity = Activity(
                 title = "EventActivitySummaryLabelPreviewEventActivitySummaryLabelPreviewEventActivitySummaryLabelPreviewEventActivitySummaryLabelPreview",
                 type = "event",
@@ -100,7 +98,8 @@ fun EventActivitySummaryLabelPreview() {
                 startTime = Date(2000, 10, 14, 10, 14, 20),
                 endTime = Date(2000, 10, 14, 13, 14, 20),
                 location = Location(displayName = "Hoc vien hoang gia")
-            )
+            ),
+            onClick = {}
         )
     }
 }

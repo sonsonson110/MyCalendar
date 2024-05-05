@@ -4,8 +4,6 @@ import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
 import com.example.mycalendar.core.data.model.Activity
-import com.example.mycalendar.core.data.model.Location
-import com.example.mycalendar.core.data.model.User
 
 data class ActivityWithLocationAndUserAndParticipants(
     @Embedded val activityEntity: ActivityEntity,
@@ -14,7 +12,7 @@ data class ActivityWithLocationAndUserAndParticipants(
         parentColumn = "place_id",
         entityColumn = "place_id",
     )
-    val locationEntity: LocationEntity,
+    val locationEntity: LocationEntity? = null,
     @Relation(
         entity = UserEntity::class,
         parentColumn = "created_by_uid",
@@ -30,7 +28,7 @@ data class ActivityWithLocationAndUserAndParticipants(
         parentColumn = "id",
         entityColumn = "uid",
     )
-    val participants: List<UserEntity>
+    val participants: List<UserEntity> = emptyList()
 )
 
 fun ActivityWithLocationAndUserAndParticipants.toActivity() = Activity(
@@ -42,24 +40,10 @@ fun ActivityWithLocationAndUserAndParticipants.toActivity() = Activity(
     timeZone = this.activityEntity.timeZone,
     reminderOffsetSeconds = this.activityEntity.reminderOffsetSeconds,
     isCompleted = this.activityEntity.isCompleted,
-    createdUser = with(this.userEntity) {
-        User(
-            uid = uid,
-            name = name,
-            email = email,
-            isSelf = isSelf
-        )
-    },
+    createdUser = this.userEntity.toUser(),
     endTime = this.activityEntity.endTime,
     conferenceUrl = this.activityEntity.conferenceUrl,
     colorHex = this.activityEntity.colorHex,
-    location = with(this.locationEntity) {
-        Location(
-            placeId = placeId,
-            lon = lon,
-            lat = lat,
-            displayName = displayName
-        )
-    },
+    location = locationEntity?.toLocation(),
     participants = this.participants.map(UserEntity::toUser)
 )

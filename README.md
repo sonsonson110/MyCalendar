@@ -8,6 +8,7 @@
   - [Authentication](https://firebase.google.com/docs/auth)
   - [Firestore](https://firebase.google.com/docs/firestore/quickstart): store app's remote data
 - Develop UI with [Jetpack Compose](https://developer.android.com/develop/ui/compose)
+- Follow latest version of Google’s open-source design system [Material 3](https://m3.material.io/)
 - Follow MVVM architectural pattern with [ViewModel library](https://developer.android.com/topic/libraries/architecture/viewmodel)
 - Dependency Injection with [Hilt](https://developer.android.com/training/dependency-injection/hilt-android)
 - Store persistence data with Jetpack [Room](https://developer.android.com/training/data-storage/room)

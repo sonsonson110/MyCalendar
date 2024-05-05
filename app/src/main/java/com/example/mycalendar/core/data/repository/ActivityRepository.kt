@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 interface ActivityRepository {
-    suspend fun getAllPlainActivity(): List<Activity>
-    suspend fun getActivityDetailById(activityId: Int): Activity
+    fun getAllPlainActivity(): Flow<List<Activity>>
+    fun getActivityDetailById(activityId: Int): Flow<Activity>
     suspend fun addActivity(activity: Activity)
     suspend fun updateActivity(activity: Activity)
     suspend fun deleteActivity(activity: Activity)
@@ -19,12 +19,12 @@ interface ActivityRepository {
 
 class ActivityRepositoryImpl @Inject constructor(private val activityDao: ActivityDao) :
     ActivityRepository {
-    override suspend fun getAllPlainActivity(): List<Activity> {
-        return activityDao.getAllActivityEntity().map(ActivityEntity::toActivity)
+    override fun getAllPlainActivity(): Flow<List<Activity>> {
+        return activityDao.getAllActivityEntity().map{ it.map(ActivityEntity::toActivity) }
     }
 
-    override suspend fun getActivityDetailById(activityId: Int): Activity {
-        return activityDao.getActivityWithLocationAndUserAndParticipantsById(activityId).toActivity()
+    override fun getActivityDetailById(activityId: Int): Flow<Activity> {
+        return activityDao.getActivityWithLocationAndUserAndParticipantsById(activityId).map { it.toActivity() }
     }
 
     override suspend fun addActivity(activity: Activity) {

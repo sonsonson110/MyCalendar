@@ -57,7 +57,7 @@ fun StickyDateLabel(date: Date, isToday: Boolean, modifier: Modifier = Modifier)
                     modifier = Modifier
                         .clip(MaterialTheme.shapes.large)
                         .background(MaterialTheme.colorScheme.primary)
-                        .size(34.dp)
+                        .size(30.dp)
 
                 ) {
                     Text(
