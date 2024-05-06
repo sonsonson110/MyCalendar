@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ActivityDao {
+    // use flow to notify consumer when data changes
     @Query("SELECT * FROM Activity ORDER BY start_time")
     fun getAllActivityEntity(): Flow<List<ActivityEntity>>
 

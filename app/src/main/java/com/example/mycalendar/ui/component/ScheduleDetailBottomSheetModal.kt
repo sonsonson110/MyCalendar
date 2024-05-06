@@ -121,7 +121,6 @@ fun ScheduleDetailBottomSheetModal(
                             .align(Alignment.Center)
                             .clip(CircleShape)
                             .background(activity.colorHex?.let { Color(it) } ?: defaultTypeColor)
-
                         )
                     },
                     items = {
@@ -189,6 +188,25 @@ fun ScheduleDetailBottomSheetModal(
                         }
                     )
 
+                ScheduleDetailFieldTemplate(
+                    verticalAlignment = Alignment.CenterVertically,
+                    icon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_globe_24),
+                            contentDescription = "profile",
+                            modifier = Modifier
+                                .align(Alignment.Center),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }, items = {
+                        Text(
+                            text = activity.timeZone!!,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                )
+
                 if (activity.description != null)
                     ScheduleDetailFieldTemplate(
                         verticalAlignment = Alignment.CenterVertically,
@@ -244,7 +262,7 @@ fun ScheduleDetailBottomSheetModal(
                     .padding(bottom = 8.dp)
             ) {
                 Text(
-                    text = "Mark as completed",
+                    text = if (activity.isCompleted) "Mark as completed" else "Mark uncompleted",
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = Typography.titleSmall,
                     modifier = Modifier
