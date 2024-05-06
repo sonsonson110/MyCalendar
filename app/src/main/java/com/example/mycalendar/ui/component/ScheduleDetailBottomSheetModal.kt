@@ -1,21 +1,17 @@
 package com.example.mycalendar.ui.component
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
@@ -39,7 +35,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.mycalendar.R
 import com.example.mycalendar.core.data.model.Activity
@@ -58,6 +53,9 @@ import java.util.Date
 fun ScheduleDetailBottomSheetModal(
     activity: Activity,
     scheduleState: ScheduleState,
+    navigateToScheduleEdit: (Int) -> Unit,
+    onItemDelete: () -> Unit,
+    onMarkAsCompleted: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val gutterWidth = 64.dp
@@ -77,7 +75,7 @@ fun ScheduleDetailBottomSheetModal(
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
                         .size(24.dp)
-                        .clickable { /*TODO: Navigation to edit*/ },
+                        .clickable { navigateToScheduleEdit(activity.id) },
                 )
 
                 var expanded by remember { mutableStateOf(false) }
@@ -98,7 +96,7 @@ fun ScheduleDetailBottomSheetModal(
                     ) {
                         DropdownMenuItem(
                             text = { Text("Delete") },
-                            onClick = { /* TODO: Handle delete */ }
+                            onClick = { onItemDelete(); expanded = false }
                         )
                     }
                 }
@@ -138,7 +136,7 @@ fun ScheduleDetailBottomSheetModal(
                         if (activity.startTime != null)
                             Text(
                                 text = activity.startTime.toCommonDateOnlyExpression() + " · " + "${activity.startTime.toDayTime()} ${activity.endTime?.let { "- " + it.toDayTime() } ?: ""}",
-                                style = Typography.titleSmall,
+                                style = Typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                     }
@@ -253,34 +251,11 @@ fun ScheduleDetailBottomSheetModal(
                         .align(Alignment.CenterEnd)
                         .padding(vertical = 16.dp)
                         .padding(end = 16.dp)
-                        .clickable { /*TODO*/ },
+                        .clickable { onMarkAsCompleted() },
                 )
             }
         }
     }
-}
-
-@Composable
-private fun ScheduleDetailFieldTemplate(
-    icon: @Composable BoxScope.() -> Unit,
-    items: @Composable ColumnScope.() -> Unit,
-    gutterWidth: Dp = 64.dp,
-    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
-    verticalAlignment: Alignment.Vertical = Alignment.Top,
-
-    ) {
-    Row(modifier = modifier, verticalAlignment = verticalAlignment) {
-        Box(
-            modifier = Modifier.width(gutterWidth),
-            content = icon
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(end = 15.dp), content = items
-        )
-    }
-
 }
 
 @Preview
@@ -293,6 +268,9 @@ fun ScheduleDetailBottomSheetModalPreview() {
         ) {
             ScheduleDetailBottomSheetModal(
                 scheduleState = ScheduleState.SUCCESS,
+                navigateToScheduleEdit = {},
+                onItemDelete = {},
+                onMarkAsCompleted = {},
                 activity = Activity(
                     isCompleted = true,
                     type = "event",

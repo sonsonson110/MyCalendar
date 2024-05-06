@@ -1,6 +1,5 @@
 package com.example.mycalendar.feature.auth.signup
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,10 +21,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,12 +41,12 @@ import com.example.mycalendar.R
 import com.example.mycalendar.ui.theme.MyCalendarTheme
 import com.example.mycalendar.ui.theme.Typography
 import com.example.mycalendar.ui.theme.urlColor
-import kotlinx.coroutines.launch
 
 private const val TAG = "SignupScreen"
 
 @Composable
 fun SignupScreen(
+    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SignupViewModel = hiltViewModel(),
 ) {
@@ -76,7 +75,8 @@ fun SignupScreen(
                     signupField = signupUiState.signupField,
                     errorMessage = signupUiState.errorMessage,
                     onSignupFieldChange = viewModel::updateSignUpField,
-                    onSignup = viewModel::createNewUserWithEmailAndPassword
+                    onSignup = viewModel::createNewUserWithEmailAndPassword,
+                    navigateBack = onNavigateBack
                 )
             }
         }
@@ -101,6 +101,7 @@ private fun SignupForm(
     errorMessage: String? = null,
     onSignupFieldChange: (SignupField) -> Unit,
     onSignup: () -> Unit,
+    navigateBack: () -> Unit,
 ) {
     OutlinedTextField(
         value = signupField.name,
@@ -171,19 +172,12 @@ private fun SignupForm(
             color = MaterialTheme.colorScheme.outline,
             style = Typography.labelLarge,
             modifier = Modifier
-                .clickable { /*TODO: Implement*/ }
+                .clickable { navigateBack() }
                 .align(Alignment.CenterStart)
         )
-        val coroutineScope = rememberCoroutineScope()
         Button(
             enabled = signupField.isValid(),
-            onClick = {
-                coroutineScope.launch {
-                    onSignup()
-//                    if (signupState == SignupState.SUCCESS)
-//                    // TODO: navigate
-                }
-            }, colors = ButtonDefaults.buttonColors(
+            onClick = onSignup, colors = ButtonDefaults.buttonColors(
                 containerColor = urlColor,
                 contentColor = Color.White,
             ),
@@ -199,6 +193,11 @@ private fun SignupForm(
 
     if (signupState == SignupState.LOADING)
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+
+    LaunchedEffect(key1 = signupState) {
+        if (signupState == SignupState.SUCCESS)
+            navigateBack()
+    }
 }
 
 @Preview
@@ -209,7 +208,7 @@ fun SignupScreenLightPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            SignupScreen()
+            SignupScreen(onNavigateBack = {})
         }
     }
 }
@@ -222,7 +221,7 @@ fun SignupScreenDarkPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            SignupScreen()
+            SignupScreen(onNavigateBack = {})
         }
     }
 }

@@ -51,15 +51,14 @@ private const val TAG = "ScheduleScreen"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleScreen(
-    modifier: Modifier = Modifier,
     viewModel: ScheduleViewModel = hiltViewModel(),
+    navigateToScheduleEdit: (Int?) -> Unit,
 ) {
     val scheduleUiState by viewModel.scheduleUiState.collectAsState()
     var currentDate by remember { mutableStateOf(Date()) }
 
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
-    val coroutineScope = rememberCoroutineScope()
 
     // to control the scrolling behavior from parent
     val listState = rememberLazyListState()
@@ -68,7 +67,7 @@ fun ScheduleScreen(
     Scaffold(
         topBar = { ScheduleTopBar(date = currentDate) },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showBottomSheet = true }) {
+            FloatingActionButton(onClick = { navigateToScheduleEdit(null) }) {
                 Icon(imageVector = Icons.Filled.Add, contentDescription = "Add an activity")
             }
         }
@@ -116,7 +115,13 @@ fun ScheduleScreen(
                     // Model sheet content
                     ScheduleDetailBottomSheetModal(
                         scheduleState = scheduleUiState.scheduleDetailUiState.scheduleState,
-                        activity = scheduleUiState.scheduleDetailUiState.selectedActivity
+                        activity = scheduleUiState.scheduleDetailUiState.selectedActivity,
+                        navigateToScheduleEdit = navigateToScheduleEdit,
+                        onItemDelete = {
+                            viewModel.onActivityDelete()
+                            showBottomSheet = false
+                        },
+                        onMarkAsCompleted = viewModel::onMarkAsCompleted
                     )
                 }
             }
@@ -161,7 +166,7 @@ fun ScheduleTopBar(
             )
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
             titleContentColor = MaterialTheme.colorScheme.onSurface,
         )
     )
@@ -175,7 +180,8 @@ fun ScheduleScreenPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            ScheduleScreen()
+            ScheduleScreen(
+                navigateToScheduleEdit = { })
         }
     }
 }

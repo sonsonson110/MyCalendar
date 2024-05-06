@@ -89,7 +89,7 @@ dependencies {
     // hilt di
     implementation("com.google.dagger:hilt-android:2.48")
     kapt("com.google.dagger:hilt-android-compiler:2.48")
-    implementation("androidx.hilt:hilt-navigation-compose:1.0.0") // with compose navigation
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0") // with compose navigation
 
     // room database
     val room_version = "2.6.1"

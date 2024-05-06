@@ -22,6 +22,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +48,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
+    navigateToSignUpScreen: () -> Unit,
+    navigateToScheduleScreen: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel()
 ) {
@@ -81,10 +84,12 @@ fun LoginScreen(
                         coroutineScope.launch {
                             viewModel.signInWithEmailAndPassword()
 //                            if (loginUiState.loginState == LoginState.SUCCESS)
-                                // TODO: Implement navigation
+                            // TODO: Implement navigation
 
                         }
                     },
+                    navigateToSignUpScreen = navigateToSignUpScreen,
+                    navigateToScheduleScreen = navigateToScheduleScreen,
                 )
             }
         }
@@ -109,6 +114,8 @@ private fun LoginForm(
     onLoginFieldChange: (LoginField) -> Unit,
     errorMessage: String? = null,
     onLogin: () -> Unit,
+    navigateToSignUpScreen: () -> Unit,
+    navigateToScheduleScreen: () -> Unit,
 ) {
     OutlinedTextField(
         value = loginField.email,
@@ -163,17 +170,10 @@ private fun LoginForm(
             text = "Create account",
             color = urlColor,
             style = Typography.labelLarge,
-            modifier = Modifier.clickable { /*TODO: Implement*/ }
+            modifier = Modifier.clickable { navigateToSignUpScreen() }
         )
-        val coroutineScope = rememberCoroutineScope()
         Button(
-            onClick = {
-                coroutineScope.launch {
-                    onLogin()
-//                    if (loginState == LoginState.SUCCESS)
-//                        navigate
-                }
-            }, colors = ButtonDefaults.buttonColors(
+            onClick = onLogin, colors = ButtonDefaults.buttonColors(
                 containerColor = urlColor,
                 contentColor = Color.White,
             )
@@ -184,6 +184,12 @@ private fun LoginForm(
 
     if (loginState == LoginState.LOADING)
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+
+    // always listen to loginState, navigate when login success
+    LaunchedEffect(key1 = loginState) {
+        if (loginState == LoginState.SUCCESS)
+            navigateToScheduleScreen()
+    }
 }
 
 @Preview
@@ -194,7 +200,7 @@ fun LoginScreenLightPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            LoginScreen()
+            LoginScreen(navigateToSignUpScreen = {}, navigateToScheduleScreen = {})
         }
     }
 }
@@ -207,7 +213,7 @@ fun LoginScreenDarkPreview() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            LoginScreen()
+            LoginScreen(navigateToSignUpScreen = {}, navigateToScheduleScreen = {})
         }
     }
 }

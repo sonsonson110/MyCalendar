@@ -11,8 +11,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.mycalendar.core.data.model.Activity
 import com.example.mycalendar.feature.schedule.ScheduleScreen
+import com.example.mycalendar.ui.navigation.MyCalendarNavHost
 import com.example.mycalendar.ui.theme.MyCalendarTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,19 +23,19 @@ private const val TAG = "MainActivity"
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    private lateinit var navController: NavHostController
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            var activities by remember { mutableStateOf(Activity()) }
-            
             MyCalendarTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    ScheduleScreen()
+                    navController = rememberNavController()
+                    MyCalendarNavHost(navController = navController)
                 }
             }
         }

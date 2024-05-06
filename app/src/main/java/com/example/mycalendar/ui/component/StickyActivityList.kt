@@ -94,7 +94,7 @@ fun StickyActivityList(
         }
 
         // go to today or find the closest Date and prompt no schedule
-        LaunchedEffect(key1 = Unit) {
+        LaunchedEffect(key1 = true) {
             val index = findIndexOfClosestDateFromList(Date(), items.map { it.startTime!! })
             state.scrollToItem(index = index)
         }

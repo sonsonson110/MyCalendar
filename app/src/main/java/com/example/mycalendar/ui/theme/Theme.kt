@@ -39,8 +39,7 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun MyCalendarTheme(
-//    darkTheme: Boolean = isSystemInDarkTheme(),
-    darkTheme: Boolean = true,
+    darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit

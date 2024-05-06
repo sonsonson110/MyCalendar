@@ -1,10 +1,11 @@
 package com.example.mycalendar.feature.schedule
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mycalendar.core.data.model.Activity
 import com.example.mycalendar.core.data.repository.ActivityRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -43,17 +44,48 @@ class ScheduleViewModel @Inject constructor(
                 )
             )
         }
-        viewModelScope.launch {
-            activityRepository.getActivityDetailById(activityId).collect { data ->
-                _scheduleUiState.update {
-                    it.copy(
-                        scheduleDetailUiState = ScheduleDetailUiState(
-                            scheduleState = ScheduleState.SUCCESS,
-                            selectedActivity = data,
-                        )
+        // prevent blocking the ui thread (main)
+        viewModelScope.launch(Dispatchers.IO) {
+            val detail = activityRepository.getActivityDetailById(activityId)
+            _scheduleUiState.update {
+                it.copy(
+                    scheduleDetailUiState = ScheduleDetailUiState(
+                        scheduleState = ScheduleState.SUCCESS,
+                        selectedActivity = detail,
                     )
-                }
+                )
             }
+        }
+    }
+
+
+    fun onActivityDelete() {
+        val activity = _scheduleUiState.value.scheduleDetailUiState.selectedActivity
+        viewModelScope.launch(Dispatchers.IO) {
+            activityRepository.deleteActivity(activity)
+            // restore detail idle state
+            _scheduleUiState.update {
+                it.copy(scheduleDetailUiState = ScheduleDetailUiState())
+            }
+        }
+    }
+
+    fun onMarkAsCompleted() {
+        val activity = _scheduleUiState.value.scheduleDetailUiState.selectedActivity
+        val newActivity = activity.copy(isCompleted = !activity.isCompleted)
+
+        viewModelScope.launch(Dispatchers.IO) {
+            activityRepository.updateActivity(newActivity)
+        }
+
+        // update according to the ui state
+        _scheduleUiState.update {
+            it.copy(
+                scheduleDetailUiState = ScheduleDetailUiState(
+                    scheduleState = ScheduleState.SUCCESS,
+                    selectedActivity = newActivity,
+                )
+            )
         }
     }
 

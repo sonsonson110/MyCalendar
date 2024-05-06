@@ -15,8 +15,9 @@ interface ActivityDao {
     @Query("SELECT * FROM Activity ORDER BY start_time")
     fun getAllActivityEntity(): Flow<List<ActivityEntity>>
 
+    // only get it oneshot
     @Query("SELECT * FROM Activity WHERE id = :activityId")
-    fun getActivityWithLocationAndUserAndParticipantsById(activityId: Int): Flow<ActivityWithLocationAndUserAndParticipants>
+    fun getActivityWithLocationAndUserAndParticipantsById(activityId: Int): ActivityWithLocationAndUserAndParticipants
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addActivity(activityEntity: ActivityEntity)

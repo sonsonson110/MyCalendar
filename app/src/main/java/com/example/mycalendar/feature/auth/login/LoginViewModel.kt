@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mycalendar.core.data.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,8 +26,8 @@ class LoginViewModel @Inject constructor(
         loginUiState = loginUiState.copy(loginField = loginField)
     }
 
-    suspend fun signInWithEmailAndPassword() {
-        viewModelScope.launch {
+    fun signInWithEmailAndPassword() {
+        viewModelScope.launch(Dispatchers.IO) {
             loginUiState = loginUiState.copy(loginState = LoginState.LOADING)
             with(loginUiState.loginField) {
                 authRepository.signInUserWithEmailAndPassword(email, password)

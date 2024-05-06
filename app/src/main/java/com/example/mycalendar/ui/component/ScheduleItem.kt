@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -50,7 +51,8 @@ fun ScheduleItem(
                 fontWeight = FontWeight.W500,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 2,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                textDecoration = if (activity.isCompleted) TextDecoration.LineThrough else null
             )
             if (activity.type == "event") {
                 Text(
