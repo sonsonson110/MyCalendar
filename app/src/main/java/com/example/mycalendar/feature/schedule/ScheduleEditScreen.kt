@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,21 +19,18 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentEnforcement
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TimePicker
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -43,22 +41,40 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.mycalendar.R
+import com.example.mycalendar.core.data.model.Activity
+import com.example.mycalendar.core.data.model.User
+import com.example.mycalendar.core.data.util.addByHour
 import com.example.mycalendar.core.data.util.setTimeInfo
-import com.example.mycalendar.core.data.util.toCommonDateOnlyExpression
-import com.example.mycalendar.core.data.util.toDayTime
+import com.example.mycalendar.core.data.util.toMinute
+import com.example.mycalendar.core.data.util.toSecond
 import com.example.mycalendar.core.data.util.truncateTimeInfo
 import com.example.mycalendar.core.data.util.updateDateWithMillis
-import com.example.mycalendar.ui.component.NoDecorationTextField
 import com.example.mycalendar.ui.component.ScheduleDetailFieldTemplate
-import com.example.mycalendar.ui.component.TimePickerDialog
+import com.example.mycalendar.ui.component.edit.DateTimeSelectionField
+import com.example.mycalendar.ui.component.edit.NoDecorationTextField
+import com.example.mycalendar.ui.component.edit.PickerDialog
 import com.example.mycalendar.ui.theme.MyCalendarTheme
 import com.example.mycalendar.ui.theme.defaultTypeColor
 import java.util.Date
 import java.util.TimeZone
+
+// TODO: Add event input fields
+// TODO: Add viewmodel and logics
+// TODO: Create a search component
+
+val colorHexNameHashMap = hashMapOf(
+    0xffde583c to "Tomato",
+    0xffe16c41 to "Tangerine",
+    0xffe8ba58 to "Banana",
+    0xff4f9363 to "Basil",
+    0xffd5847a to "Flamingo",
+    0xff5399d1 to "Default color"
+)
 
 @SuppressLint("RememberReturnType")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,20 +86,30 @@ fun ScheduleEditScreen(
     Column(
         modifier = modifier
             .padding(top = 8.dp)
+            .fillMaxHeight()
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // title input
-        var title by remember { mutableStateOf("") }
-        // type selection group
-        var type by remember { mutableStateOf("task") }
+        val date = Date()
+        var activity by remember {
+            mutableStateOf(
+                Activity(
+                    type = "event",
+                    startTime = date,
+                    endTime = date.addByHour(1),
+                    createdUser = User(email = "pson34587q349@gmai.com")
+                )
+            )
+        }
 
         ScheduleDetailFieldTemplate(
             icon = { Spacer(modifier = Modifier.width(gutterWidth)) },
             items = {
                 NoDecorationTextField(
-                    value = title,
-                    onValueChange = { title = it },
+                    value = activity.title ?: "",
+                    onValueChange = {
+                        activity = activity.copy(title = it)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
@@ -101,14 +127,14 @@ fun ScheduleEditScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     FilterChip(
-                        selected = type == "task",
-                        onClick = { type = "task" },
+                        selected = activity.type == "task",
+                        onClick = { activity = activity.copy(type = "task") },
                         label = {
                             Text(text = "Task")
                         })
                     FilterChip(
-                        selected = type == "event",
-                        onClick = { type = "event" },
+                        selected = activity.type == "event",
+                        onClick = { activity = activity.copy(type = "event") },
                         label = {
                             Text(text = "Event")
                         })
@@ -119,7 +145,6 @@ fun ScheduleEditScreen(
         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
         // account selection
-        var colorHex by remember { mutableStateOf(defaultTypeColor) }
         ScheduleDetailFieldTemplate(
             verticalAlignment = Alignment.CenterVertically,
             icon = {
@@ -140,16 +165,16 @@ fun ScheduleEditScreen(
                         modifier = Modifier
                             .size(10.dp)
                             .clip(CircleShape)
-                            .background(colorHex)
+                            .background(activity.colorHex?.let { Color(it) } ?: defaultTypeColor)
                     )
                     Text(
-                        text = type.capitalize(),
+                        text = activity.type!!.capitalize(),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 Text(
-                    text = "pson1478236sdf@gmail.com",
+                    text = activity.createdUser!!.email!!,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -158,12 +183,14 @@ fun ScheduleEditScreen(
 
         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
-        var date by remember { mutableStateOf(Date()) }
         var switchState by remember { mutableStateOf(false) }
 
         LaunchedEffect(key1 = switchState) {
             if (switchState)
-                date = date.truncateTimeInfo()
+                activity = activity.copy(
+                    startTime = activity.startTime!!.truncateTimeInfo(),
+                    endTime = activity.endTime!!.truncateTimeInfo(),
+                )
         }
 
         ScheduleDetailFieldTemplate(
@@ -202,90 +229,35 @@ fun ScheduleEditScreen(
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        // date time selection
-        val datePickerState = rememberDatePickerState()
-        var showDatePicker by remember { mutableStateOf(false) }
-
-        val timePickerState = rememberTimePickerState(
-            initialHour = date.hours,
-            initialMinute = date.minutes,
-            is24Hour = false
+        // start date & time selection
+        DateTimeSelectionField(
+            date = activity.startTime!!,
+            onDatePicked = {
+                activity = activity.copy(startTime = activity.startTime!!.updateDateWithMillis(it))
+            },
+            onTimePicked = { hour, minute ->
+                activity = activity.copy(startTime = activity.startTime!!.setTimeInfo(hour, minute))
+            },
+            isAllDay = switchState,
+            gutterWidth = gutterWidth,
         )
-        var showTimePicker by remember { mutableStateOf(false) }
 
-        ScheduleDetailFieldTemplate(
-            icon = { Spacer(modifier = Modifier.width(gutterWidth)) },
-            items = {
-                Row {
-                    Text(
-                        text = date.toCommonDateOnlyExpression(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier
-                            .weight(1f, true)
-                            .clickable { showDatePicker = true }
-                    )
+        if (activity.type == "event") {
+            Spacer(modifier = Modifier.height(4.dp))
+            DateTimeSelectionField(
+                date = activity.endTime!!,
+                onDatePicked = {
+                    activity = activity.copy(endTime = activity.endTime!!.updateDateWithMillis(it))
+                },
+                onTimePicked = { hour, minute ->
+                    activity = activity.copy(endTime = activity.endTime!!.setTimeInfo(hour, minute))
+                },
+                isAllDay = switchState,
+                gutterWidth = gutterWidth,
+            )
+        }
 
-                    // date picker component
-                    if (showDatePicker)
-                        DatePickerDialog(
-                            onDismissRequest = { showDatePicker = false },
-                            confirmButton = {
-                                TextButton(
-                                    onClick = {
-                                        datePickerState.selectedDateMillis?.let {
-                                            date = date.updateDateWithMillis(it)
-                                        }
-                                        showDatePicker = false
-                                    }
-                                ) { Text("Confirm") }
-                            },
-                            dismissButton = {
-                                TextButton(
-                                    onClick = {
-                                        showDatePicker = false
-                                    }
-                                ) { Text("Cancel") }
-                            },
-                            modifier = Modifier.padding(horizontal = 8.dp)
-                        ) { DatePicker(state = datePickerState) }
 
-                    if (!switchState) {
-                        Text(
-                            text = date.toDayTime(),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.clickable { showTimePicker = true }
-                        )
-
-                        if (showTimePicker) {
-                            TimePickerDialog(
-                                onDismissRequest = { showTimePicker = false },
-                                confirmButton = {
-                                    TextButton(
-                                        onClick = {
-                                            date = date.setTimeInfo(
-                                                timePickerState.hour,
-                                                timePickerState.minute
-                                            )
-                                            showTimePicker = false
-                                        }
-                                    ) { Text("Confirm") }
-                                },
-                                dismissButton = {
-                                    TextButton(
-                                        onClick = {
-                                            showTimePicker = false
-                                        }
-                                    ) { Text("Cancel") }
-                                }
-                            )
-                            { TimePicker(state = timePickerState) }
-                        }
-                    }
-                }
-            }
-        )
 
         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
@@ -312,8 +284,187 @@ fun ScheduleEditScreen(
 
         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
+        // conference url field
+        if (activity.type == "event") {
+            ScheduleDetailFieldTemplate(
+                verticalAlignment = Alignment.CenterVertically,
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_videocam_24),
+                        contentDescription = "video conferencing",
+                        modifier = Modifier
+                            .align(Alignment.Center),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                items = {
+                    NoDecorationTextField(
+                        value = activity.conferenceUrl ?: "",
+                        onValueChange = { activity = activity.copy(conferenceUrl = it) },
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
+                        placeholder = {
+                            Text(
+                                text = "Add video conferencing url",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        })
+                }
+            )
+            Divider(modifier = Modifier.padding(vertical = 8.dp))
+        }
+
+        if (activity.type == "event") {
+            ScheduleDetailFieldTemplate(
+                verticalAlignment = Alignment.CenterVertically,
+                icon = {
+                    Icon(
+                        imageVector = Icons.Outlined.LocationOn,
+                        contentDescription = "location",
+                        modifier = Modifier
+                            .align(Alignment.Center),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                items = {
+                    Text(
+                        text = activity.location?.displayName ?: "Add location",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.clickable { /*TODO: Add location selection*/ }
+                    )
+                }
+            )
+            Divider(modifier = Modifier.padding(vertical = 8.dp))
+        }
+
+        if (activity.type == "event") {
+            var openColorPickerDialog by remember { mutableStateOf(false) }
+
+            ScheduleDetailFieldTemplate(
+                verticalAlignment = Alignment.CenterVertically,
+                icon = {
+                    Box(
+                        modifier = Modifier
+                            .size(16.dp)
+                            .align(Alignment.Center)
+                            .clip(CircleShape)
+                            .background(activity.colorHex?.let { Color(it) } ?: defaultTypeColor)
+                    )
+                },
+                items = {
+                    Text(
+                        text = activity.colorHex?.let { colorHexNameHashMap[it] }
+                            ?: "Default color",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.clickable { openColorPickerDialog = true }
+                    )
+                }
+            )
+            if (openColorPickerDialog)
+                PickerDialog(
+                    onDismissRequest = { openColorPickerDialog = false },
+                    content = {
+                        colorHexNameHashMap.forEach { (colorHexKey, colorName) ->
+                            Row(
+                                modifier = Modifier
+                                    .clickable {
+                                        activity = activity.copy(colorHex = colorHexKey)
+                                        openColorPickerDialog = false
+                                    },
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(16.dp)
+                                        .clip(CircleShape)
+                                        .background(Color(colorHexKey))
+                                ) {
+                                    if (colorHexKey != activity.colorHex && !(activity.colorHex == null && colorHexKey == 0xff5399d1)) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(10.dp)
+                                                .clip(CircleShape)
+                                                .background(MaterialTheme.colorScheme.surface)
+                                                .align(Alignment.Center)
+                                        )
+                                    }
+                                }
+                                Text(
+                                    text = colorName,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                    }
+                )
+            Divider(modifier = Modifier.padding(vertical = 8.dp))
+        }
+
+        // notification set
+        var openNotificationPickerDialog by remember { mutableStateOf(false) }
+        ScheduleDetailFieldTemplate(
+            verticalAlignment = Alignment.CenterVertically,
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.Notifications,
+                    contentDescription = "note",
+                    modifier = Modifier
+                        .align(Alignment.Center),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            items = {
+                Text(
+                    text = activity.reminderOffsetSeconds?.let { "Before ${it.toMinute()} minutes" }
+                        ?: "Add notification",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.clickable { openNotificationPickerDialog = true }
+                )
+            }
+        )
+        if (openNotificationPickerDialog)
+            PickerDialog(
+                onDismissRequest = { openNotificationPickerDialog = false },
+                content = {
+                    val minuteOptions = listOf(5, 10, 15, 20, 30)
+                    minuteOptions.forEach { minute ->
+                        Row(
+                            modifier = Modifier
+                                .clickable {
+                                    activity =
+                                        activity.copy(reminderOffsetSeconds = minute.toSecond())
+                                    openNotificationPickerDialog = false
+                                },
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            RadioButton(
+                                selected = activity.reminderOffsetSeconds == minute.toSecond(),
+                                onClick = {
+                                    activity =
+                                        activity.copy(reminderOffsetSeconds = minute.toSecond())
+                                    openNotificationPickerDialog = false
+                                },
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = "Before $minute minutes",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                }
+            )
+
+        Divider(modifier = Modifier.padding(vertical = 8.dp))
+
         // description input
-        var description by remember { mutableStateOf("") }
         ScheduleDetailFieldTemplate(
             verticalAlignment = Alignment.CenterVertically,
             icon = {
@@ -327,8 +478,8 @@ fun ScheduleEditScreen(
             },
             items = {
                 NoDecorationTextField(
-                    value = description,
-                    onValueChange = { description = it },
+                    value = activity.description ?: "",
+                    onValueChange = { activity = activity.copy(description = it) },
                     textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
                     placeholder = {
                         Text(
@@ -336,9 +487,12 @@ fun ScheduleEditScreen(
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                    })
+                    }, singleLine = false
+                )
             }
         )
+
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 

@@ -1,4 +1,4 @@
-package com.example.mycalendar.ui.component
+package com.example.mycalendar.ui.component.schedule
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -43,6 +43,7 @@ import com.example.mycalendar.core.data.model.User
 import com.example.mycalendar.core.data.util.toCommonDateOnlyExpression
 import com.example.mycalendar.core.data.util.toDayTime
 import com.example.mycalendar.feature.schedule.ScheduleState
+import com.example.mycalendar.ui.component.ScheduleDetailFieldTemplate
 import com.example.mycalendar.ui.theme.MyCalendarTheme
 import com.example.mycalendar.ui.theme.Typography
 import com.example.mycalendar.ui.theme.defaultTypeColor
@@ -207,27 +208,6 @@ fun ScheduleDetailBottomSheetModal(
                     }
                 )
 
-                if (activity.description != null)
-                    ScheduleDetailFieldTemplate(
-                        verticalAlignment = Alignment.CenterVertically,
-                        icon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.icon_notes_24),
-                                contentDescription = "note",
-                                modifier = Modifier
-                                    .align(Alignment.Center),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        },
-                        items = {
-                            Text(
-                                text = activity.description,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                style = Typography.bodyLarge
-                            )
-                        }
-                    )
-
                 // account
                 ScheduleDetailFieldTemplate(
                     verticalAlignment = Alignment.CenterVertically,
@@ -249,7 +229,26 @@ fun ScheduleDetailBottomSheetModal(
                     }
                 )
 
-
+                if (activity.description != null)
+                    ScheduleDetailFieldTemplate(
+                        verticalAlignment = Alignment.CenterVertically,
+                        icon = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.icon_notes_24),
+                                contentDescription = "note",
+                                modifier = Modifier
+                                    .align(Alignment.Center),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        },
+                        items = {
+                            Text(
+                                text = activity.description,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = Typography.bodyLarge
+                            )
+                        }
+                    )
             }
 
 

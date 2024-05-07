@@ -57,6 +57,13 @@ fun Date.setTimeInfo(hour: Int, minute: Int): Date {
     return calendar.time
 }
 
+fun Date.addByHour(hour: Int): Date {
+    val calendar = Calendar.getInstance()
+    calendar.time = this
+    calendar.add(Calendar.HOUR, hour)
+    return calendar.time
+}
+
 fun Date.updateDateWithMillis(millis: Long): Date {
     val newCalendar = Calendar.getInstance()
     newCalendar.timeInMillis = millis
@@ -70,6 +77,8 @@ fun Date.updateDateWithMillis(millis: Long): Date {
     return updatedCalendar.time
 }
 
+fun Int.toMinute(): Int = this / 60
+fun Int.toSecond(): Int = this * 60
 
 fun findIndexOfClosestDateFromList(target: Date, dateList: List<Date>): Int {
     // Find the minimum amount of days to the current date

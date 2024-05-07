@@ -1,5 +1,6 @@
 package com.example.mycalendar.feature.schedule
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,12 +19,15 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,14 +40,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mycalendar.R
+import com.example.mycalendar.core.data.util.findIndexOfClosestDateFromList
 import com.example.mycalendar.core.data.util.isEqualIgnoreTimeTo
 import com.example.mycalendar.core.data.util.toMonthName
-import com.example.mycalendar.ui.component.ScheduleDetailBottomSheetModal
-import com.example.mycalendar.ui.component.ScheduleItem
-import com.example.mycalendar.ui.component.StickyActivityList
-import com.example.mycalendar.ui.component.StickyDateLabel
+import com.example.mycalendar.ui.component.schedule.ScheduleDetailBottomSheetModal
+import com.example.mycalendar.ui.component.schedule.ScheduleItem
+import com.example.mycalendar.ui.component.schedule.StickyActivityList
+import com.example.mycalendar.ui.component.schedule.StickyDateLabel
 import com.example.mycalendar.ui.theme.MyCalendarTheme
 import com.example.mycalendar.ui.theme.Typography
+import kotlinx.coroutines.launch
 import java.util.Date
 
 private const val TAG = "ScheduleScreen"
@@ -57,15 +63,36 @@ fun ScheduleScreen(
     val scheduleUiState by viewModel.scheduleUiState.collectAsState()
     var currentDate by remember { mutableStateOf(Date()) }
 
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet by remember { mutableStateOf(false) }
 
     // to control the scrolling behavior from parent
     val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
 
+    // snack bar
+    val snackbarHostState = remember { SnackbarHostState() }
 
     Scaffold(
-        topBar = { ScheduleTopBar(date = currentDate) },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        topBar = {
+            ScheduleTopBar(
+                date = currentDate,
+                onTodayScroll = {
+                    if (scheduleUiState.activities.isNotEmpty()) {
+                        val today = Date()
+                        val todayIndex = findIndexOfClosestDateFromList(
+                            today,
+                            scheduleUiState.activities.map { it.startTime!! })
+
+                        coroutineScope.launch {
+                            listState.scrollToItem(todayIndex)
+                            if (!scheduleUiState.activities[todayIndex].startTime!!.isEqualIgnoreTimeTo(today))
+                                snackbarHostState.showSnackbar("There is nothing to do today. Create one!")
+                        }
+                    }
+                })
+        },
         floatingActionButton = {
             FloatingActionButton(onClick = { navigateToScheduleEdit(null) }) {
                 Icon(imageVector = Icons.Filled.Add, contentDescription = "Add an activity")
@@ -78,8 +105,15 @@ fun ScheduleScreen(
 
             // prevent empty list appears on screen and breaks app logic
             if (scheduleUiState.scheduleState == ScheduleState.SUCCESS) {
-
                 val gutterWidth = 64.dp
+
+                // go to today or find the closest Date and prompt no schedule
+                LaunchedEffect(key1 = Unit) {
+                    val index = findIndexOfClosestDateFromList(
+                        Date(),
+                        scheduleUiState.activities.map { it.startTime!! })
+                    listState.scrollToItem(index = index)
+                }
 
                 StickyActivityList(
                     state = listState,
@@ -97,7 +131,13 @@ fun ScheduleScreen(
                         ScheduleItem(
                             activity = activity,
                             onClick = {
-                                viewModel.onScheduleItemClick(activity.id)
+                                viewModel.onScheduleItemClick(activity.id)  // get the detail activity value
+                                coroutineScope.launch {
+                                    val targetIndex = findIndexOfClosestDateFromList(
+                                        activity.startTime!!,
+                                        scheduleUiState.activities.map { it.startTime!! })
+                                    listState.scrollToItem(targetIndex)
+                                }
                                 showBottomSheet = true
                             }
                         )
@@ -116,7 +156,10 @@ fun ScheduleScreen(
                     ScheduleDetailBottomSheetModal(
                         scheduleState = scheduleUiState.scheduleDetailUiState.scheduleState,
                         activity = scheduleUiState.scheduleDetailUiState.selectedActivity,
-                        navigateToScheduleEdit = navigateToScheduleEdit,
+                        navigateToScheduleEdit = {
+                            showBottomSheet = false
+                            navigateToScheduleEdit(it)
+                        },
                         onItemDelete = {
                             viewModel.onActivityDelete()
                             showBottomSheet = false
@@ -133,43 +176,48 @@ fun ScheduleScreen(
 @Composable
 fun ScheduleTopBar(
     date: Date,
+    onTodayScroll: () -> Unit,
 ) {
-    TopAppBar(
-        title = {
-            Text(
-                date.toMonthName(),
-                style = Typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        },
-        navigationIcon = {
-            Icon(
-                imageVector = Icons.Default.Menu,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .size(24.dp)
-            )
-        },
-        actions = {
-            Icon(
-                imageVector = Icons.Outlined.Search,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 12.dp)
-            )
-            Icon(
-                painter = painterResource(id = R.drawable.icon_outline_today_24),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 12.dp, end = 16.dp)
-            )
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
+    Surface(shadowElevation = 3.dp) {
+        TopAppBar(
+            title = {
+                Text(
+                    date.toMonthName(),
+                    style = Typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            },
+            navigationIcon = {
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .size(24.dp)
+                )
+            },
+            actions = {
+                Icon(
+                    imageVector = Icons.Outlined.Search,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_outline_today_24),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .padding(start = 12.dp, end = 16.dp)
+                        .clickable { onTodayScroll() }
+                )
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+                titleContentColor = MaterialTheme.colorScheme.onSurface,
+            ),
         )
-    )
+    }
 }
 
 @Preview

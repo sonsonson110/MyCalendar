@@ -1,4 +1,4 @@
-package com.example.mycalendar.ui.component
+package com.example.mycalendar.ui.component.schedule
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,7 +10,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
@@ -19,7 +22,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.mycalendar.core.data.model.Activity
-import com.example.mycalendar.core.data.util.findIndexOfClosestDateFromList
 import java.util.Date
 
 @Composable
@@ -33,7 +35,6 @@ fun StickyActivityList(
     stickyFactory: @Composable BoxScope.(initial: Date) -> Unit,
     itemFactory: @Composable (Activity) -> Unit,
 ) {
-
     // put a Box on the top left gutter, this is where the initial is placed
     Box(modifier = modifier
         .composed {
@@ -91,12 +92,6 @@ fun StickyActivityList(
             items(items) { item ->
                 itemFactory(item)
             }
-        }
-
-        // go to today or find the closest Date and prompt no schedule
-        LaunchedEffect(key1 = true) {
-            val index = findIndexOfClosestDateFromList(Date(), items.map { it.startTime!! })
-            state.scrollToItem(index = index)
         }
     }
 }

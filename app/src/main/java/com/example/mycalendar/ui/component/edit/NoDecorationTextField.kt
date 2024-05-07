@@ -1,4 +1,4 @@
-package com.example.mycalendar.ui.component
+package com.example.mycalendar.ui.component.edit
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
@@ -22,6 +22,7 @@ fun NoDecorationTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     textStyle: TextStyle,
+    singleLine: Boolean = true,
     placeholder: @Composable () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -37,7 +38,7 @@ fun NoDecorationTextField(
             value = value,
             innerTextField = it,
             enabled = true,
-            singleLine = false,
+            singleLine = singleLine,
             visualTransformation = VisualTransformation.None,
             interactionSource = interactionSource,
             // remove start padding

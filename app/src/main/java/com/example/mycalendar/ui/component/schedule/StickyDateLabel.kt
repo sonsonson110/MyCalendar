@@ -1,4 +1,4 @@
-package com.example.mycalendar.ui.component
+package com.example.mycalendar.ui.component.schedule
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
