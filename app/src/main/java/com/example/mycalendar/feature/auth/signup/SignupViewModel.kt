@@ -28,7 +28,6 @@ class SignupViewModel @Inject constructor(
     }
 
     fun createNewUserWithEmailAndPassword() {
-        var newUser: com.example.mycalendar.core.data.model.User? = null
         viewModelScope.launch {
             signupUiState = signupUiState.copy(signupState = SignupState.LOADING)
             with(signupUiState.signupField) {
@@ -40,16 +39,22 @@ class SignupViewModel @Inject constructor(
                         )
                     }
                     .collect { data ->
-                        newUser = com.example.mycalendar.core.data.model.User(
+                        val newUser = com.example.mycalendar.core.data.model.User(
                             uid = data.user!!.uid,
                             name = name,
                             email = email,
                             isSelf = false
                         )
                         signupUiState = signupUiState.copy(signupState = SignupState.SUCCESS)
+                        // store in local database & remote on success
+                        newUser.let {
+                            userRepository.createLocalUser(it)
+                            userRepository.createRemoteUser(it)
+                        }
+                        // change display name in firebaseAuth
+                        authRepository.updateAthUserDisplayName(name, authResult = data)
                     }
             }
-            userRepository.createLocalAndRemoteUser(newUser!!)
         }
     }
 }

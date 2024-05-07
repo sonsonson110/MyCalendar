@@ -5,7 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mycalendar.core.data.model.User
 import com.example.mycalendar.core.data.repository.AuthRepository
+import com.example.mycalendar.core.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
@@ -16,7 +18,8 @@ private const val TAG = "LoginViewModel"
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
     // hold current login ui state
     var loginUiState by mutableStateOf<LoginUiState>(LoginUiState())
@@ -37,9 +40,18 @@ class LoginViewModel @Inject constructor(
                             loginState = LoginState.FAILED
                         )
                     }
-                    .collect { _ ->
+                    .collect { data ->
                         loginUiState = loginUiState.copy(
                             loginState = LoginState.SUCCESS
+                        )
+                        // add/update to local db current user
+                        userRepository.createLocalUser(
+                            User(
+                                uid = data.user!!.uid,
+                                name = data.user!!.displayName,
+                                email = data.user!!.email,
+                                isSelf = true
+                            )
                         )
                     }
             }

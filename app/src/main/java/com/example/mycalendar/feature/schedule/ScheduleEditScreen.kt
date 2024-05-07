@@ -52,7 +52,6 @@ import com.example.mycalendar.core.data.util.addByHour
 import com.example.mycalendar.core.data.util.setTimeInfo
 import com.example.mycalendar.core.data.util.toMinute
 import com.example.mycalendar.core.data.util.toSecond
-import com.example.mycalendar.core.data.util.truncateTimeInfo
 import com.example.mycalendar.core.data.util.updateDateWithMillis
 import com.example.mycalendar.ui.component.ScheduleDetailFieldTemplate
 import com.example.mycalendar.ui.component.edit.DateTimeSelectionField
@@ -63,7 +62,6 @@ import com.example.mycalendar.ui.theme.defaultTypeColor
 import java.util.Date
 import java.util.TimeZone
 
-// TODO: Add event input fields
 // TODO: Add viewmodel and logics
 // TODO: Create a search component
 
@@ -101,6 +99,16 @@ fun ScheduleEditScreen(
                 )
             )
         }
+
+        // initialize time properties if new create
+//        LaunchedEffect(key1 = Unit) {
+//            val today = Date()
+//            activity = activity.copy(
+//                startTime = today,
+//                endTime = today.addByHour(1),
+//                timeZone = TimeZone.getDefault().id
+//            )
+//        }
 
         ScheduleDetailFieldTemplate(
             icon = { Spacer(modifier = Modifier.width(gutterWidth)) },
@@ -174,7 +182,7 @@ fun ScheduleEditScreen(
                     )
                 }
                 Text(
-                    text = activity.createdUser!!.email!!,
+                    text = activity.createdUser?.email!! ?: "",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -184,14 +192,6 @@ fun ScheduleEditScreen(
         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
         var switchState by remember { mutableStateOf(false) }
-
-        LaunchedEffect(key1 = switchState) {
-            if (switchState)
-                activity = activity.copy(
-                    startTime = activity.startTime!!.truncateTimeInfo(),
-                    endTime = activity.endTime!!.truncateTimeInfo(),
-                )
-        }
 
         ScheduleDetailFieldTemplate(
             verticalAlignment = Alignment.CenterVertically,

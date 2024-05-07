@@ -3,8 +3,10 @@ package com.example.mycalendar.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.mycalendar.feature.auth.login.LoginScreen
 import com.example.mycalendar.feature.auth.signup.SignupScreen
 import com.example.mycalendar.feature.schedule.ScheduleEditScreen
@@ -18,8 +20,8 @@ fun MyCalendarNavHost(
     NavHost(
         modifier = modifier,
         navController = navController,
-//        startDestination = NavDestination.Login.route,
-        startDestination = NavDestination.ScheduleEdit.route,
+        startDestination = NavDestination.Login.route,
+//        startDestination = NavDestination.ScheduleEdit.route,
     ) {
         composable(
             route = NavDestination.Login.route
@@ -37,7 +39,10 @@ fun MyCalendarNavHost(
             )
         }
 
-        composable(route = NavDestination.ScheduleEdit.route) {
+        composable(
+            route = NavDestination.ScheduleEdit().route,
+            arguments = listOf(navArgument(NavDestination.ScheduleEdit().navArg) { type = NavType.IntType })
+        ) {
             ScheduleEditScreen()
         }
 
@@ -51,7 +56,7 @@ fun MyCalendarNavHost(
             route = NavDestination.Schedule.route
         ) {
             ScheduleScreen(
-                navigateToScheduleEdit = { navController.navigate(route = NavDestination.ScheduleEdit.route) },
+                navigateToScheduleEdit = { navController.navigate(route = NavDestination.ScheduleEdit().route) },
             )
         }
     }
