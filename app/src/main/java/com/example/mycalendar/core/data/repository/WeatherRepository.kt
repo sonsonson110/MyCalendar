@@ -10,13 +10,13 @@ import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 interface WeatherRepository {
-    suspend fun getCurrentWeather(lat: Double, lon: Double): Flow<Weather>
+    fun getCurrentWeather(lat: Double, lon: Double): Flow<Weather>
 }
 
 class WeatherRepositoryImpl @Inject constructor(
     private val openWeatherMapNetwork: OpenWeatherMapNetwork,
 ): WeatherRepository {
-    override suspend fun getCurrentWeather(lat: Double, lon: Double): Flow<Weather> = flow {
+    override fun getCurrentWeather(lat: Double, lon: Double): Flow<Weather> = flow {
         val response = openWeatherMapNetwork.getCurrentWeather(lon, lat)
         emit(response.toWeather())
     }.flowOn(Dispatchers.IO)

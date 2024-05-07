@@ -1,20 +1,25 @@
 package com.example.mycalendar.feature.schedule.list
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mycalendar.core.data.model.NetworkResult
 import com.example.mycalendar.core.data.repository.ActivityRepository
+import com.example.mycalendar.core.data.repository.WeatherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
+private const val TAG = "ScheduleViewModel"
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
-    private val activityRepository: ActivityRepository
+    private val activityRepository: ActivityRepository,
+    private val weatherRepository: WeatherRepository
 ) : ViewModel() {
 
     private val _scheduleUiState: MutableStateFlow<ScheduleUiState> =
@@ -23,6 +28,7 @@ class ScheduleViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            // get activity list
             activityRepository.getAllPlainActivity()
                 .collect { list ->
                     _scheduleUiState.update {
@@ -31,6 +37,16 @@ class ScheduleViewModel @Inject constructor(
                             scheduleState = ScheduleState.SUCCESS
                         )
                     }
+                }
+        }
+        viewModelScope.launch {
+            // TODO: get current weather programmatically
+            weatherRepository.getCurrentWeather(lon = 20.0, lat = 100.0)
+                .catch { e ->
+                    _scheduleUiState.update { it.copy(weather = NetworkResult.Error(message = e.message)) }
+                }.collect { data ->
+                    Log.d(TAG, "getCurrentWeather: $data")
+                    _scheduleUiState.update { it.copy(weather = NetworkResult.Success(data = data)) }
                 }
         }
     }

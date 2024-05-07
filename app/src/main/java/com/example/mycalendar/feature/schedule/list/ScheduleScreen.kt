@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -25,6 +26,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,6 +47,7 @@ import com.example.mycalendar.core.data.util.isEqualIgnoreTimeTo
 import com.example.mycalendar.core.data.util.toMonthName
 import com.example.mycalendar.ui.component.schedule.ScheduleDetailBottomSheetModal
 import com.example.mycalendar.ui.component.schedule.ScheduleItem
+import com.example.mycalendar.ui.component.schedule.ScheduleModalNavigationDrawer
 import com.example.mycalendar.ui.component.schedule.StickyActivityList
 import com.example.mycalendar.ui.component.schedule.StickyDateLabel
 import com.example.mycalendar.ui.theme.MyCalendarTheme
@@ -62,108 +65,119 @@ fun ScheduleScreen(
     navigateToScheduleAdd: () -> Unit,
 ) {
     val scheduleUiState by viewModel.scheduleUiState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
     var currentDate by remember { mutableStateOf(Date()) }
 
+    // to control the drawer from the left
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
+    // to control the bottom sheet
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet by remember { mutableStateOf(false) }
 
     // to control the scrolling behavior from parent
     val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
 
     // snack bar
     val snackbarHostState = remember { SnackbarHostState() }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        topBar = {
-            ScheduleTopBar(
-                date = currentDate,
-                onTodayScroll = {
-                    if (scheduleUiState.activities.isNotEmpty()) {
-                        val today = Date()
-                        val todayIndex = findIndexOfClosestDateFromList(
-                            today,
-                            scheduleUiState.activities.map { it.startTime!! })
-
+    ScheduleModalNavigationDrawer(weather = scheduleUiState.weather, drawerState = drawerState) {
+        Scaffold(
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+            topBar = {
+                ScheduleTopBar(
+                    date = currentDate,
+                    onDrawerToggle = {
                         coroutineScope.launch {
-                            listState.scrollToItem(todayIndex)
-                            if (!scheduleUiState.activities[todayIndex].startTime!!.isEqualIgnoreTimeTo(
-                                    today
-                                )
-                            )
-                                snackbarHostState.showSnackbar("There is nothing to do today. Create one!")
+                            drawerState.apply { if (isClosed) open() else close() }
                         }
-                    }
-                })
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = navigateToScheduleAdd) {
-                Icon(imageVector = Icons.Filled.Add, contentDescription = "Add an activity")
+                    },
+                    onTodayScroll = {
+                        if (scheduleUiState.activities.isNotEmpty()) {
+                            val today = Date()
+                            val todayIndex = findIndexOfClosestDateFromList(
+                                today,
+                                scheduleUiState.activities.map { it.startTime!! })
+
+                            coroutineScope.launch {
+                                listState.scrollToItem(todayIndex)
+                                if (!scheduleUiState.activities[todayIndex].startTime!!.isEqualIgnoreTimeTo(
+                                        today
+                                    )
+                                )
+                                    snackbarHostState.showSnackbar("There is nothing to do today. Create one!")
+                            }
+                        }
+                    })
+            },
+            floatingActionButton = {
+                FloatingActionButton(onClick = navigateToScheduleAdd) {
+                    Icon(imageVector = Icons.Filled.Add, contentDescription = "Add an activity")
+                }
             }
-        }
-    ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues)) {
-            if (scheduleUiState.scheduleState == ScheduleState.LOADING)
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        ) { paddingValues ->
+            Box(modifier = Modifier.padding(paddingValues)) {
+                if (scheduleUiState.scheduleState == ScheduleState.LOADING)
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
 
-            // prevent empty list appears on screen and breaks app logic
-            if (scheduleUiState.scheduleState == ScheduleState.SUCCESS) {
-                val gutterWidth = 64.dp
+                // prevent empty list appears on screen and breaks app logic
+                if (scheduleUiState.scheduleState == ScheduleState.SUCCESS) {
+                    val gutterWidth = 64.dp
 
-                // go to today or find the closest Date and prompt no schedule
-                LaunchedEffect(key1 = Unit) {
-                    val index = findIndexOfClosestDateFromList(
-                        Date(),
-                        scheduleUiState.activities.map { it.startTime!! })
-                    listState.scrollToItem(index = index)
+                    // go to today or find the closest Date and prompt no schedule
+                    LaunchedEffect(key1 = Unit) {
+                        val index = findIndexOfClosestDateFromList(
+                            Date(),
+                            scheduleUiState.activities.map { it.startTime!! })
+                        listState.scrollToItem(index = index)
+                    }
+
+                    StickyActivityList(
+                        state = listState,
+                        items = scheduleUiState.activities,
+                        gutterWidth = gutterWidth,
+                        onFirstVisibleItemDateChange = { currentDate = it },
+                        stickyFactory = { date ->
+                            StickyDateLabel(
+                                date = date,
+                                isToday = Date().isEqualIgnoreTimeTo(date),
+                                modifier = Modifier.width(gutterWidth)
+                            )
+                        },
+                        itemFactory = { activity ->
+                            ScheduleItem(
+                                activity = activity,
+                                onClick = {
+                                    viewModel.onScheduleItemClick(activity.id)  // get the detail activity value
+                                    showBottomSheet = true
+                                }
+                            )
+                        },
+                    )
                 }
 
-                StickyActivityList(
-                    state = listState,
-                    items = scheduleUiState.activities,
-                    gutterWidth = gutterWidth,
-                    onFirstVisibleItemDateChange = { currentDate = it },
-                    stickyFactory = { date ->
-                        StickyDateLabel(
-                            date = date,
-                            isToday = Date().isEqualIgnoreTimeTo(date),
-                            modifier = Modifier.width(gutterWidth)
-                        )
-                    },
-                    itemFactory = { activity ->
-                        ScheduleItem(
-                            activity = activity,
-                            onClick = {
-                                viewModel.onScheduleItemClick(activity.id)  // get the detail activity value
-                                showBottomSheet = true
-                            }
-                        )
-                    },
-                )
-            }
-
-            if (showBottomSheet) {
-                ModalBottomSheet(
-                    onDismissRequest = {
-                        showBottomSheet = false
-                    },
-                    sheetState = sheetState
-                ) {
-                    // Model sheet content
-                    ScheduleDetailBottomSheetModal(
-                        scheduleState = scheduleUiState.scheduleDetailUiState.scheduleState,
-                        activity = scheduleUiState.scheduleDetailUiState.selectedActivity,
-                        navigateToScheduleEdit = {
-                            showBottomSheet = false
-                            navigateToScheduleEdit(it)
-                        },
-                        onItemDelete = {
-                            viewModel.onActivityDelete()
+                if (showBottomSheet) {
+                    ModalBottomSheet(
+                        onDismissRequest = {
                             showBottomSheet = false
                         },
-                        onMarkAsCompleted = viewModel::onMarkAsCompleted
-                    )
+                        sheetState = sheetState
+                    ) {
+                        // Model sheet content
+                        ScheduleDetailBottomSheetModal(
+                            scheduleState = scheduleUiState.scheduleDetailUiState.scheduleState,
+                            activity = scheduleUiState.scheduleDetailUiState.selectedActivity,
+                            navigateToScheduleEdit = {
+                                showBottomSheet = false
+                                navigateToScheduleEdit(it)
+                            },
+                            onItemDelete = {
+                                viewModel.onActivityDelete()
+                                showBottomSheet = false
+                            },
+                            onMarkAsCompleted = viewModel::onMarkAsCompleted
+                        )
+                    }
                 }
             }
         }
@@ -174,6 +188,7 @@ fun ScheduleScreen(
 @Composable
 fun ScheduleTopBar(
     date: Date,
+    onDrawerToggle: () -> Unit,
     onTodayScroll: () -> Unit,
 ) {
     Surface(shadowElevation = 3.dp) {
@@ -192,6 +207,7 @@ fun ScheduleTopBar(
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
                         .size(24.dp)
+                        .clickable { onDrawerToggle() }
                 )
             },
             actions = {
