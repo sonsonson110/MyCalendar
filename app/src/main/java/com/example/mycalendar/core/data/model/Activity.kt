@@ -19,7 +19,13 @@ data class Activity(
     val colorHex: Long? = null,
     val location: Location? = null,
     val participants: List<User>? = null,
-)
+) {
+    fun isDateRangeValid(): Boolean {
+        if (type == "event")
+            return startTime!!.before(endTime) || startTime.equals(endTime)
+        return true
+    }
+}
 
 fun Activity.toActivityEntity() = ActivityEntity(
     id = this.id,

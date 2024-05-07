@@ -12,13 +12,13 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ActivityDao {
-    // use flow to notify consumer when data changes
+    // use flow to notify new data to consumer when data changes
     @Query("SELECT * FROM Activity ORDER BY start_time")
     fun getAllActivityEntity(): Flow<List<ActivityEntity>>
 
-    // only get it oneshot
+    // only get it oneshot, mark it as `suspend`
     @Query("SELECT * FROM Activity WHERE id = :activityId")
-    fun getActivityWithLocationAndUserAndParticipantsById(activityId: Int): ActivityWithLocationAndUserAndParticipants
+    suspend fun getActivityWithLocationAndUserAndParticipantsById(activityId: Int): ActivityWithLocationAndUserAndParticipants
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addActivity(activityEntity: ActivityEntity)

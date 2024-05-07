@@ -1,4 +1,4 @@
-package com.example.mycalendar.feature.schedule
+package com.example.mycalendar.ui.component.edit
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
@@ -18,9 +18,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -33,7 +35,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,16 +55,10 @@ import com.example.mycalendar.core.data.util.toMinute
 import com.example.mycalendar.core.data.util.toSecond
 import com.example.mycalendar.core.data.util.updateDateWithMillis
 import com.example.mycalendar.ui.component.ScheduleDetailFieldTemplate
-import com.example.mycalendar.ui.component.edit.DateTimeSelectionField
-import com.example.mycalendar.ui.component.edit.NoDecorationTextField
-import com.example.mycalendar.ui.component.edit.PickerDialog
 import com.example.mycalendar.ui.theme.MyCalendarTheme
 import com.example.mycalendar.ui.theme.defaultTypeColor
 import java.util.Date
 import java.util.TimeZone
-
-// TODO: Add viewmodel and logics
-// TODO: Create a search component
 
 val colorHexNameHashMap = hashMapOf(
     0xffde583c to "Tomato",
@@ -77,8 +72,15 @@ val colorHexNameHashMap = hashMapOf(
 @SuppressLint("RememberReturnType")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScheduleEditScreen(
-    modifier: Modifier = Modifier
+fun ScheduleInput(
+    onNavigateBack: () -> Unit,
+    activity: Activity,
+    onActivityChange: (Activity) -> Unit,
+    onActivitySave: () -> Unit,
+    modifier: Modifier = Modifier,
+    isCreate: Boolean = true,
+    isAllDay: Boolean = false,
+    onIsAllDayChange: (Boolean) -> Unit,
 ) {
     val gutterWidth = 64.dp
     Column(
@@ -88,27 +90,27 @@ fun ScheduleEditScreen(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        val date = Date()
-        var activity by remember {
-            mutableStateOf(
-                Activity(
-                    type = "event",
-                    startTime = date,
-                    endTime = date.addByHour(1),
-                    createdUser = User(email = "pson34587q349@gmai.com")
-                )
-            )
+        // header buttons
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Spacer(modifier = Modifier.width(20.dp))
+            Icon(
+                imageVector = Icons.Filled.Close,
+                contentDescription = "close",
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.clickable { onNavigateBack() })
+            Spacer(modifier = Modifier.weight(1f))
+            Button(
+                onClick = onActivitySave,
+                enabled = activity.isDateRangeValid()
+            ) {
+                Text(text = "Save", style = MaterialTheme.typography.labelLarge)
+            }
+            Spacer(modifier = Modifier.width(15.dp))
         }
 
-        // initialize time properties if new create
-//        LaunchedEffect(key1 = Unit) {
-//            val today = Date()
-//            activity = activity.copy(
-//                startTime = today,
-//                endTime = today.addByHour(1),
-//                timeZone = TimeZone.getDefault().id
-//            )
-//        }
 
         ScheduleDetailFieldTemplate(
             icon = { Spacer(modifier = Modifier.width(gutterWidth)) },
@@ -116,7 +118,7 @@ fun ScheduleEditScreen(
                 NoDecorationTextField(
                     value = activity.title ?: "",
                     onValueChange = {
-                        activity = activity.copy(title = it)
+                        onActivityChange(activity.copy(title = it))
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -130,23 +132,23 @@ fun ScheduleEditScreen(
                         )
                     }
                 )
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    FilterChip(
-                        selected = activity.type == "task",
-                        onClick = { activity = activity.copy(type = "task") },
-                        label = {
-                            Text(text = "Task")
-                        })
-                    FilterChip(
-                        selected = activity.type == "event",
-                        onClick = { activity = activity.copy(type = "event") },
-                        label = {
-                            Text(text = "Event")
-                        })
-                }
+                if (isCreate)
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        FilterChip(
+                            selected = activity.type == "task",
+                            onClick = { onActivityChange(activity.copy(type = "task")) },
+                            label = {
+                                Text(text = "Task")
+                            })
+                        FilterChip(
+                            selected = activity.type == "event",
+                            onClick = { onActivityChange(activity.copy(type = "event")) },
+                            label = {
+                                Text(text = "Event")
+                            })
+                    }
             }
         )
 
@@ -182,7 +184,7 @@ fun ScheduleEditScreen(
                     )
                 }
                 Text(
-                    text = activity.createdUser?.email!! ?: "",
+                    text = activity.createdUser?.email ?: "",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -190,8 +192,6 @@ fun ScheduleEditScreen(
         )
 
         Divider(modifier = Modifier.padding(vertical = 8.dp))
-
-        var switchState by remember { mutableStateOf(false) }
 
         ScheduleDetailFieldTemplate(
             verticalAlignment = Alignment.CenterVertically,
@@ -207,7 +207,7 @@ fun ScheduleEditScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { switchState = !switchState },
+                        .clickable { onIsAllDayChange(!isAllDay) },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
@@ -219,8 +219,8 @@ fun ScheduleEditScreen(
                     // this remove extra top padding of the default switch
                     CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {
                         Switch(
-                            checked = switchState,
-                            onCheckedChange = { switchState = !switchState },
+                            checked = isAllDay,
+                            onCheckedChange = { onIsAllDayChange(it) },
                         )
                     }
                 }
@@ -233,12 +233,25 @@ fun ScheduleEditScreen(
         DateTimeSelectionField(
             date = activity.startTime!!,
             onDatePicked = {
-                activity = activity.copy(startTime = activity.startTime!!.updateDateWithMillis(it))
+                onActivityChange(
+                    activity.copy(
+                        startTime = activity.startTime.updateDateWithMillis(
+                            it
+                        )
+                    )
+                )
             },
             onTimePicked = { hour, minute ->
-                activity = activity.copy(startTime = activity.startTime!!.setTimeInfo(hour, minute))
+                onActivityChange(
+                    activity.copy(
+                        startTime = activity.startTime.setTimeInfo(
+                            hour,
+                            minute
+                        )
+                    )
+                )
             },
-            isAllDay = switchState,
+            isAllDay = isAllDay,
             gutterWidth = gutterWidth,
         )
 
@@ -247,12 +260,25 @@ fun ScheduleEditScreen(
             DateTimeSelectionField(
                 date = activity.endTime!!,
                 onDatePicked = {
-                    activity = activity.copy(endTime = activity.endTime!!.updateDateWithMillis(it))
+                    onActivityChange(
+                        activity.copy(
+                            endTime = activity.endTime.updateDateWithMillis(
+                                it
+                            )
+                        )
+                    )
                 },
                 onTimePicked = { hour, minute ->
-                    activity = activity.copy(endTime = activity.endTime!!.setTimeInfo(hour, minute))
+                    onActivityChange(
+                        activity.copy(
+                            endTime = activity.endTime.setTimeInfo(
+                                hour,
+                                minute
+                            )
+                        )
+                    )
                 },
-                isAllDay = switchState,
+                isAllDay = isAllDay,
                 gutterWidth = gutterWidth,
             )
         }
@@ -300,7 +326,7 @@ fun ScheduleEditScreen(
                 items = {
                     NoDecorationTextField(
                         value = activity.conferenceUrl ?: "",
-                        onValueChange = { activity = activity.copy(conferenceUrl = it) },
+                        onValueChange = { onActivityChange(activity.copy(conferenceUrl = it)) },
                         textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
                         placeholder = {
                             Text(
@@ -370,7 +396,7 @@ fun ScheduleEditScreen(
                             Row(
                                 modifier = Modifier
                                     .clickable {
-                                        activity = activity.copy(colorHex = colorHexKey)
+                                        onActivityChange(activity.copy(colorHex = colorHexKey))
                                         openColorPickerDialog = false
                                     },
                                 verticalAlignment = Alignment.CenterVertically,
@@ -436,8 +462,7 @@ fun ScheduleEditScreen(
                         Row(
                             modifier = Modifier
                                 .clickable {
-                                    activity =
-                                        activity.copy(reminderOffsetSeconds = minute.toSecond())
+                                    onActivityChange(activity.copy(reminderOffsetSeconds = minute.toSecond()))
                                     openNotificationPickerDialog = false
                                 },
                             verticalAlignment = Alignment.CenterVertically,
@@ -446,8 +471,7 @@ fun ScheduleEditScreen(
                             RadioButton(
                                 selected = activity.reminderOffsetSeconds == minute.toSecond(),
                                 onClick = {
-                                    activity =
-                                        activity.copy(reminderOffsetSeconds = minute.toSecond())
+                                    onActivityChange(activity.copy(reminderOffsetSeconds = minute.toSecond()))
                                     openNotificationPickerDialog = false
                                 },
                                 modifier = Modifier.size(20.dp)
@@ -479,7 +503,7 @@ fun ScheduleEditScreen(
             items = {
                 NoDecorationTextField(
                     value = activity.description ?: "",
-                    onValueChange = { activity = activity.copy(description = it) },
+                    onValueChange = { onActivityChange(activity.copy(description = it)) },
                     textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
                     placeholder = {
                         Text(
@@ -498,11 +522,16 @@ fun ScheduleEditScreen(
 
 @Preview
 @Composable
-fun ScheduleEditScreenPreview() {
+fun ScheduleInputPreview() {
     MyCalendarTheme {
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.background
-        ) { ScheduleEditScreen() }
+        Surface(color = MaterialTheme.colorScheme.background) {
+            val date = Date()
+            ScheduleInput(activity = Activity(
+                type = "event",
+                startTime = date,
+                endTime = date.addByHour(1),
+                createdUser = User(email = "pson34587q349@gmai.com")
+            ), onActivityChange = {}, onNavigateBack = {}, onActivitySave = {}, onIsAllDayChange = {})
+        }
     }
 }

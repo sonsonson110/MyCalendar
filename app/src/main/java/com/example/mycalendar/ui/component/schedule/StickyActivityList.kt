@@ -10,10 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
@@ -22,6 +18,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.mycalendar.core.data.model.Activity
+import com.example.mycalendar.core.data.util.isEqualIgnoreTimeTo
 import java.util.Date
 
 @Composable
@@ -38,7 +35,7 @@ fun StickyActivityList(
     // put a Box on the top left gutter, this is where the initial is placed
     Box(modifier = modifier
         .composed {
-            var initial: Date? = null
+            var lastSeenDate: Date? = null
 
             // iterate through the current visible items on the screen
             state.layoutInfo.visibleItemsInfo.forEachIndexed { index, itemInfo ->
@@ -47,13 +44,13 @@ fun StickyActivityList(
                     onFirstVisibleItemDateChange(items[itemInfo.index].startTime!!)
 
                 // the current initial of the item
-                val itemInitial = items[itemInfo.index].startTime
+                val currentDate = items[itemInfo.index].startTime
 
                 // if the current iterating item is different initial from the last item's...
                 //  else show NO initial for that item
-                if (itemInitial != initial) {
+                if (!currentDate!!.isEqualIgnoreTimeTo(lastSeenDate)) {
                     //  1. replace the last initial
-                    initial = itemInitial
+                    lastSeenDate = currentDate
 
                     //  2. get the info of the next item
                     val nextInitial = items.getOrNull(itemInfo.index + 1)?.startTime
@@ -65,7 +62,7 @@ fun StickyActivityList(
                     //  4. if the current item is not the first item in visible items, or
                     // the next initial is different from the current initial
                     Box(
-                        modifier = if (index != 0 || itemInitial != nextInitial) {
+                        modifier = if (index != 0 || !currentDate.isEqualIgnoreTimeTo(nextInitial)) {
                             // the initial y-axis value is now following the item offset
                             Modifier.offset(x = 0.dp, y = offsetDp)
                         } else {
@@ -73,7 +70,7 @@ fun StickyActivityList(
                             Modifier
                         },
                     ) {
-                        stickyFactory(itemInitial!!)
+                        stickyFactory(currentDate!!)
                     }
                 }
             }
@@ -89,7 +86,7 @@ fun StickyActivityList(
                 .padding(start = gutterWidth, end = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(items) { item ->
+            items(items, key = { item -> item.id }) { item ->
                 itemFactory(item)
             }
         }

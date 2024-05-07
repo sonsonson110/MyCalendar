@@ -16,5 +16,5 @@ interface UserDao {
     suspend fun updateUserEntity(userEntity: UserEntity)
 
     @Query("SELECT * FROM user WHERE is_self = 1")
-    fun getCurrentUserEntity(): UserEntity
+    suspend fun getCurrentUserEntity(): UserEntity
 }

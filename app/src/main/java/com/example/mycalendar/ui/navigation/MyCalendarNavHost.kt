@@ -9,8 +9,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.mycalendar.feature.auth.login.LoginScreen
 import com.example.mycalendar.feature.auth.signup.SignupScreen
-import com.example.mycalendar.feature.schedule.ScheduleEditScreen
-import com.example.mycalendar.feature.schedule.ScheduleScreen
+import com.example.mycalendar.feature.schedule.edit.ScheduleAddScreen
+import com.example.mycalendar.feature.schedule.edit.ScheduleEditScreen
+import com.example.mycalendar.feature.schedule.list.ScheduleScreen
 
 @Composable
 fun MyCalendarNavHost(
@@ -20,8 +21,8 @@ fun MyCalendarNavHost(
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination = NavDestination.Login.route,
-//        startDestination = NavDestination.ScheduleEdit.route,
+//        startDestination = NavDestination.Login.route,
+        startDestination = NavDestination.Schedule.route,
     ) {
         composable(
             route = NavDestination.Login.route
@@ -40,10 +41,12 @@ fun MyCalendarNavHost(
         }
 
         composable(
-            route = NavDestination.ScheduleEdit().route,
-            arguments = listOf(navArgument(NavDestination.ScheduleEdit().navArg) { type = NavType.IntType })
+            route = "${NavDestination.ScheduleEdit().route}/{${NavDestination.ScheduleEdit().navArg}}",
+            arguments = listOf(navArgument(NavDestination.ScheduleEdit().navArg) {
+                type = NavType.IntType
+            })
         ) {
-            ScheduleEditScreen()
+            ScheduleEditScreen(onNavigateBack = { navController.popBackStack() })
         }
 
         composable(
@@ -53,10 +56,17 @@ fun MyCalendarNavHost(
         }
 
         composable(
+            route = NavDestination.ScheduleAdd.route
+        ) {
+            ScheduleAddScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        composable(
             route = NavDestination.Schedule.route
         ) {
             ScheduleScreen(
-                navigateToScheduleEdit = { navController.navigate(route = NavDestination.ScheduleEdit().route) },
+                navigateToScheduleEdit = { activityId -> navController.navigate(route = "${NavDestination.ScheduleEdit().route}/$activityId") },
+                navigateToScheduleAdd = { navController.navigate(route = NavDestination.ScheduleAdd.route) }
             )
         }
     }

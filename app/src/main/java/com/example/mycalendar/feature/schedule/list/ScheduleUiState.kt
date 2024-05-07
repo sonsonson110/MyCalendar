@@ -1,4 +1,4 @@
-package com.example.mycalendar.feature.schedule
+package com.example.mycalendar.feature.schedule.list
 
 import com.example.mycalendar.core.data.model.Activity
 
@@ -7,7 +7,7 @@ data class ScheduleUiState(
     val scheduleState: ScheduleState = ScheduleState.LOADING,
     val scheduleDetailUiState: ScheduleDetailUiState = ScheduleDetailUiState(),
 
-)
+    )
 
 data class ScheduleDetailUiState(
     val selectedActivity: Activity = Activity(),

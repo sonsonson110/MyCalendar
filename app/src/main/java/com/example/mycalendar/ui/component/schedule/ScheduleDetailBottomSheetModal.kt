@@ -42,7 +42,7 @@ import com.example.mycalendar.core.data.model.Location
 import com.example.mycalendar.core.data.model.User
 import com.example.mycalendar.core.data.util.toCommonDateOnlyExpression
 import com.example.mycalendar.core.data.util.toDayTime
-import com.example.mycalendar.feature.schedule.ScheduleState
+import com.example.mycalendar.feature.schedule.list.ScheduleState
 import com.example.mycalendar.ui.component.ScheduleDetailFieldTemplate
 import com.example.mycalendar.ui.theme.MyCalendarTheme
 import com.example.mycalendar.ui.theme.Typography

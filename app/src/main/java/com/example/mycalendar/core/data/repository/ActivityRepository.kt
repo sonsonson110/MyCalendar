@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 interface ActivityRepository {
     fun getAllPlainActivity(): Flow<List<Activity>>
-    fun getActivityDetailById(activityId: Int): Activity
+    suspend fun getActivityDetailById(activityId: Int): Activity
     suspend fun addActivity(activity: Activity)
     suspend fun updateActivity(activity: Activity)
     suspend fun deleteActivity(activity: Activity)
@@ -23,7 +23,7 @@ class ActivityRepositoryImpl @Inject constructor(private val activityDao: Activi
         return activityDao.getAllActivityEntity().map{ it.map(ActivityEntity::toActivity) }
     }
 
-    override fun getActivityDetailById(activityId: Int): Activity {
+    override suspend fun getActivityDetailById(activityId: Int): Activity {
         return activityDao.getActivityWithLocationAndUserAndParticipantsById(activityId).toActivity()
     }
 

@@ -1,4 +1,4 @@
-package com.example.mycalendar.feature.schedule
+package com.example.mycalendar.feature.schedule.list
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -58,7 +58,8 @@ private const val TAG = "ScheduleScreen"
 @Composable
 fun ScheduleScreen(
     viewModel: ScheduleViewModel = hiltViewModel(),
-    navigateToScheduleEdit: (Int?) -> Unit,
+    navigateToScheduleEdit: (Int) -> Unit,
+    navigateToScheduleAdd: () -> Unit,
 ) {
     val scheduleUiState by viewModel.scheduleUiState.collectAsState()
     var currentDate by remember { mutableStateOf(Date()) }
@@ -87,14 +88,17 @@ fun ScheduleScreen(
 
                         coroutineScope.launch {
                             listState.scrollToItem(todayIndex)
-                            if (!scheduleUiState.activities[todayIndex].startTime!!.isEqualIgnoreTimeTo(today))
+                            if (!scheduleUiState.activities[todayIndex].startTime!!.isEqualIgnoreTimeTo(
+                                    today
+                                )
+                            )
                                 snackbarHostState.showSnackbar("There is nothing to do today. Create one!")
                         }
                     }
                 })
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { navigateToScheduleEdit(null) }) {
+            FloatingActionButton(onClick = navigateToScheduleAdd) {
                 Icon(imageVector = Icons.Filled.Add, contentDescription = "Add an activity")
             }
         }
@@ -132,12 +136,6 @@ fun ScheduleScreen(
                             activity = activity,
                             onClick = {
                                 viewModel.onScheduleItemClick(activity.id)  // get the detail activity value
-                                coroutineScope.launch {
-                                    val targetIndex = findIndexOfClosestDateFromList(
-                                        activity.startTime!!,
-                                        scheduleUiState.activities.map { it.startTime!! })
-                                    listState.scrollToItem(targetIndex)
-                                }
                                 showBottomSheet = true
                             }
                         )
@@ -229,7 +227,7 @@ fun ScheduleScreenPreview() {
             color = MaterialTheme.colorScheme.background
         ) {
             ScheduleScreen(
-                navigateToScheduleEdit = { })
+                navigateToScheduleEdit = { }, navigateToScheduleAdd = {})
         }
     }
 }

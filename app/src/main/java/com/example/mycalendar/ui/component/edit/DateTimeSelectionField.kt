@@ -3,7 +3,6 @@ package com.example.mycalendar.ui.component.edit
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -22,7 +21,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.example.mycalendar.core.data.util.toCommonDateOnlyExpression
 import com.example.mycalendar.core.data.util.toDayTime
 import com.example.mycalendar.ui.component.ScheduleDetailFieldTemplate
@@ -90,7 +88,6 @@ fun DateTimeSelectionField(
                                 }
                             ) { Text("Cancel") }
                         },
-                        modifier = Modifier.padding(horizontal = 8.dp)
                     ) { DatePicker(state = datePickerState) }
 
                 if (!isAllDay) {

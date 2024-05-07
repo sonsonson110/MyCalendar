@@ -1,4 +1,4 @@
-package com.example.mycalendar.feature.schedule
+package com.example.mycalendar.feature.schedule.edit
 
 import com.example.mycalendar.core.data.model.Activity
 import com.example.mycalendar.core.data.util.addByHour

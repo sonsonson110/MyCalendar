@@ -28,7 +28,8 @@ fun Date.toMonthName(): String {
     return timeFormat.format(this)
 }
 
-fun Date.isEqualIgnoreTimeTo(otherDate: Date): Boolean {
+fun Date.isEqualIgnoreTimeTo(otherDate: Date?): Boolean {
+    if (otherDate == null) return false
     return DateTimeComparator.getDateOnlyInstance().compare(this, otherDate) == 0
 }
 
@@ -81,14 +82,16 @@ fun Int.toMinute(): Int = this / 60
 fun Int.toSecond(): Int = this * 60
 
 fun findIndexOfClosestDateFromList(target: Date, dateList: List<Date>): Int {
-    // Find the minimum amount of days to the current date
-    var minimumDayCount = MAX_VALUE
+    var resultDate = dateList.find { date -> date.isEqualIgnoreTimeTo(target) }
+    if (resultDate != null)
+        return dateList.indexOf(resultDate)
 
+    // Find the closest date from the list
+    var minimumDayCount = MAX_VALUE
     dateList.forEach { date ->
         minimumDayCount = min(abs(date.time - target.time), minimumDayCount)
     }
-    // Get the first one that match the time gap
-    val resultDate = dateList.find { date -> abs(date.time - target.time) == minimumDayCount }
-    // this date would match or be closest date from minimum
+    resultDate = dateList.find { date -> abs(date.time - target.time) == minimumDayCount }
+    // this date would be the closest date from minimum
     return dateList.indexOf(resultDate)
 }

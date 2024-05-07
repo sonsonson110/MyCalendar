@@ -9,7 +9,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import javax.inject.Inject
 
 interface UserRepository {
-    fun getCurrentUser(): User
+    suspend fun getCurrentUser(): User
 
     suspend fun setCurrentUser(user: User)
 
@@ -22,7 +22,7 @@ class UserRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val userDao: UserDao,
 ): UserRepository {
-    override fun getCurrentUser(): User {
+    override suspend fun getCurrentUser(): User {
         return userDao.getCurrentUserEntity().toUser()
     }
 

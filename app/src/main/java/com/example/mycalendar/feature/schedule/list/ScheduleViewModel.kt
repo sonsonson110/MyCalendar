@@ -1,8 +1,7 @@
-package com.example.mycalendar.feature.schedule
+package com.example.mycalendar.feature.schedule.list
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.mycalendar.core.data.model.Activity
 import com.example.mycalendar.core.data.repository.ActivityRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -46,12 +45,12 @@ class ScheduleViewModel @Inject constructor(
         }
         // prevent blocking the ui thread (main)
         viewModelScope.launch(Dispatchers.IO) {
-            val detail = activityRepository.getActivityDetailById(activityId)
+            val activity = activityRepository.getActivityDetailById(activityId)
             _scheduleUiState.update {
                 it.copy(
                     scheduleDetailUiState = ScheduleDetailUiState(
-                        scheduleState = ScheduleState.SUCCESS,
-                        selectedActivity = detail,
+                        selectedActivity = activity,
+                        scheduleState = ScheduleState.SUCCESS
                     )
                 )
             }
@@ -71,21 +70,19 @@ class ScheduleViewModel @Inject constructor(
     }
 
     fun onMarkAsCompleted() {
-        val activity = _scheduleUiState.value.scheduleDetailUiState.selectedActivity
-        val newActivity = activity.copy(isCompleted = !activity.isCompleted)
+        viewModelScope.launch {
+            val activity = _scheduleUiState.value.scheduleDetailUiState.selectedActivity
+            val newActivity = activity.copy(isCompleted = !activity.isCompleted)
 
-        viewModelScope.launch(Dispatchers.IO) {
             activityRepository.updateActivity(newActivity)
-        }
-
-        // update according to the ui state
-        _scheduleUiState.update {
-            it.copy(
-                scheduleDetailUiState = ScheduleDetailUiState(
-                    scheduleState = ScheduleState.SUCCESS,
-                    selectedActivity = newActivity,
+            // update according to the ui state
+            _scheduleUiState.update {
+                it.copy(
+                    scheduleDetailUiState = it.scheduleDetailUiState.copy(
+                        selectedActivity = newActivity
+                    )
                 )
-            )
+            }
         }
     }
 
