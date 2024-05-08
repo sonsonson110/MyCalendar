@@ -126,10 +126,12 @@ fun ScheduleScreen(
 
                     // go to today or find the closest Date and prompt no schedule
                     LaunchedEffect(key1 = Unit) {
-                        val index = findIndexOfClosestDateFromList(
-                            Date(),
-                            scheduleUiState.activities.map { it.startTime!! })
-                        listState.scrollToItem(index = index)
+                        if (scheduleUiState.activities.isNotEmpty()) {
+                            val index = findIndexOfClosestDateFromList(
+                                Date(),
+                                scheduleUiState.activities.map { it.startTime!! })
+                            listState.scrollToItem(index = index)
+                        }
                     }
 
                     StickyActivityList(

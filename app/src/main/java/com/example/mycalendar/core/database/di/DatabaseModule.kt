@@ -22,6 +22,5 @@ object DatabaseModule {
         MyCalendarDatabase::class.java,
         "app-db4.db",
     )
-        .createFromAsset("app-db4.db")
         .build()
 }

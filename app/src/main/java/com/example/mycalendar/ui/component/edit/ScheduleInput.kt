@@ -81,6 +81,7 @@ fun ScheduleInput(
     isCreate: Boolean = true,
     isAllDay: Boolean = false,
     onIsAllDayChange: (Boolean) -> Unit,
+    onLocationPick: () -> Unit,
 ) {
     val gutterWidth = 64.dp
     Column(
@@ -111,7 +112,7 @@ fun ScheduleInput(
             Spacer(modifier = Modifier.width(15.dp))
         }
 
-
+        // title input
         ScheduleDetailFieldTemplate(
             icon = { Spacer(modifier = Modifier.width(gutterWidth)) },
             items = {
@@ -357,7 +358,7 @@ fun ScheduleInput(
                         text = activity.location?.displayName ?: "Add location",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.clickable { /*TODO: Add location selection*/ }
+                        modifier = Modifier.clickable { onLocationPick() }
                     )
                 }
             )
@@ -531,7 +532,12 @@ fun ScheduleInputPreview() {
                 startTime = date,
                 endTime = date.addByHour(1),
                 createdUser = User(email = "pson34587q349@gmai.com")
-            ), onActivityChange = {}, onNavigateBack = {}, onActivitySave = {}, onIsAllDayChange = {})
+            ),
+                onActivityChange = {},
+                onNavigateBack = {},
+                onActivitySave = {},
+                onIsAllDayChange = {},
+                onLocationPick = {})
         }
     }
 }

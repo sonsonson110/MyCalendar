@@ -7,7 +7,21 @@ data class Location(
     val lon: Double? = null,
     val lat: Double? = null,
     val displayName: String? = null,
-)
+) {
+    fun getDisplayPlace(): String? {
+        return this.displayName
+            ?.split(",")
+            ?.map { it.trim() }
+            ?.get(0)
+    }
+    fun getDisplayAddress(): String? {
+        val words = this.displayName
+            ?.split(",")
+            ?.map { it.trim() }
+        return words?.slice(1 until words.size)
+            ?.joinToString(", ")
+    }
+}
 
 fun Location.toLocationEntity() = LocationEntity(
     placeId = this.placeId!!,

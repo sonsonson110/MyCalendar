@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ScheduleAddScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToLocationPick: () -> Unit,
     viewModel: ScheduleAddViewModel = hiltViewModel()
 ) {
     val scheduleEditUiState = viewModel.scheduleEditUiState
@@ -19,6 +20,7 @@ fun ScheduleAddScreen(
         isAllDay = scheduleEditUiState.isAllDay,
         onIsAllDayChange = { viewModel.onUiStateChange(isAllDay = it) },
         onNavigateBack = onNavigateBack,
-        onActivitySave = { coroutineScope.launch { viewModel.onActivityAdd(); onNavigateBack() } }
+        onActivitySave = { coroutineScope.launch { viewModel.onActivityAdd(); onNavigateBack() } },
+        onLocationPick = onNavigateToLocationPick,
     )
 }

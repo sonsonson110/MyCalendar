@@ -17,9 +17,9 @@ interface AuthRepository {
     // only called on sign up successfully
     suspend fun updateAthUserDisplayName(displayName: String, authResult: AuthResult)
 
-    suspend fun signInUserWithEmailAndPassword(email: String, password: String): Flow<AuthResult>
+    fun signInUserWithEmailAndPassword(email: String, password: String): Flow<AuthResult>
 
-    suspend fun createUserWithEmailAndPassword(
+    fun createUserWithEmailAndPassword(
         email: String,
         password: String,
     ): Flow<AuthResult>
@@ -39,19 +39,19 @@ class AuthRepositoryImpl @Inject constructor(
         authResult.user!!.updateProfile(changeRequest).await()
     }
 
-    override suspend fun signInUserWithEmailAndPassword(
+    override fun signInUserWithEmailAndPassword(
         email: String,
         password: String
     ): Flow<AuthResult> = flow {
         val response = firebaseAuth.signInWithEmailAndPassword(email, password).await()
         emit(response)
-    }.flowOn(Dispatchers.IO)
+    }
 
-    override suspend fun createUserWithEmailAndPassword(
+    override fun createUserWithEmailAndPassword(
         email: String,
         password: String,
     ): Flow<AuthResult> = flow {
         val response = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
         emit(response)
-    }.flowOn(Dispatchers.IO)
+    }
 }

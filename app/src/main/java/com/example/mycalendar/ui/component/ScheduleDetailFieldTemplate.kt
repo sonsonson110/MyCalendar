@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 fun ScheduleDetailFieldTemplate(
     icon: @Composable BoxScope.() -> Unit,
     items: @Composable ColumnScope.() -> Unit,
-    gutterWidth: Dp = 64.dp,
+    gutterWidth: Dp = 56.dp,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
 ) {
@@ -33,7 +33,7 @@ fun ScheduleDetailFieldTemplate(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(end = 15.dp),
+                .padding(end = 16.dp),
             content = items,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         )

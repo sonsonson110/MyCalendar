@@ -12,6 +12,7 @@ import com.example.mycalendar.feature.auth.signup.SignupScreen
 import com.example.mycalendar.feature.schedule.edit.ScheduleAddScreen
 import com.example.mycalendar.feature.schedule.edit.ScheduleEditScreen
 import com.example.mycalendar.feature.schedule.list.ScheduleScreen
+import com.example.mycalendar.feature.search.LocationSearchScreen
 
 @Composable
 fun MyCalendarNavHost(
@@ -21,8 +22,8 @@ fun MyCalendarNavHost(
     NavHost(
         modifier = modifier,
         navController = navController,
-//        startDestination = NavDestination.Login.route,
-        startDestination = NavDestination.Schedule.route,
+        startDestination = NavDestination.Login.route,
+//        startDestination = NavDestination.Schedule.route,
     ) {
         composable(
             route = NavDestination.Login.route
@@ -46,19 +47,25 @@ fun MyCalendarNavHost(
                 type = NavType.IntType
             })
         ) {
-            ScheduleEditScreen(onNavigateBack = { navController.popBackStack() })
+            ScheduleEditScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToLocationPick = { navController.navigate(NavDestination.LocationSearch.route) })
         }
 
         composable(
             route = NavDestination.Signup.route
         ) {
-            SignupScreen(onNavigateBack = { navController.popBackStack() })
+            SignupScreen(
+                onNavigateBack = { navController.popBackStack() },
+            )
         }
 
         composable(
             route = NavDestination.ScheduleAdd.route
         ) {
-            ScheduleAddScreen(onNavigateBack = { navController.popBackStack() })
+            ScheduleAddScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToLocationPick = { navController.navigate(NavDestination.LocationSearch.route) })
         }
 
         composable(
@@ -66,8 +73,14 @@ fun MyCalendarNavHost(
         ) {
             ScheduleScreen(
                 navigateToScheduleEdit = { activityId -> navController.navigate(route = "${NavDestination.ScheduleEdit().route}/$activityId") },
-                navigateToScheduleAdd = { navController.navigate(route = NavDestination.ScheduleAdd.route) }
+                navigateToScheduleAdd = { navController.navigate(route = NavDestination.ScheduleAdd.route) },
             )
+        }
+
+        composable(
+            route = NavDestination.LocationSearch.route
+        ) {
+            LocationSearchScreen(onNavigateBack = { navController.popBackStack() })
         }
     }
 }

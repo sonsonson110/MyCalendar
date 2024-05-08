@@ -1,5 +1,6 @@
 package com.example.mycalendar.feature.auth.login
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -30,31 +31,34 @@ class LoginViewModel @Inject constructor(
     }
 
     fun signInWithEmailAndPassword() {
-        viewModelScope.launch(Dispatchers.IO) {
-            loginUiState = loginUiState.copy(loginState = LoginState.LOADING)
-            with(loginUiState.loginField) {
-                authRepository.signInUserWithEmailAndPassword(email, password)
-                    .catch { e ->
-                        loginUiState = loginUiState.copy(
-                            errorMessage = e.message,
-                            loginState = LoginState.FAILED
+        loginUiState = loginUiState.copy(loginState = LoginState.LOADING)
+
+        viewModelScope.launch {
+            authRepository.signInUserWithEmailAndPassword(
+                loginUiState.loginField.email,
+                loginUiState.loginField.password
+            )
+                .catch { e ->
+                    loginUiState = loginUiState.copy(
+                        errorMessage = e.message,
+                        loginState = LoginState.FAILED
+                    )
+                }
+                .collect { data ->
+                    loginUiState = loginUiState.copy(
+                        loginState = LoginState.SUCCESS
+                    )
+                    Log.d(TAG, "signInWithEmailAndPassword: ${data.user?.uid}")
+                    // add/update to local db current user
+                    userRepository.createLocalUser(
+                        User(
+                            uid = data.user!!.uid,
+                            name = data.user!!.displayName,
+                            email = data.user!!.email,
+                            isSelf = true
                         )
-                    }
-                    .collect { data ->
-                        loginUiState = loginUiState.copy(
-                            loginState = LoginState.SUCCESS
-                        )
-                        // add/update to local db current user
-                        userRepository.createLocalUser(
-                            User(
-                                uid = data.user!!.uid,
-                                name = data.user!!.displayName,
-                                email = data.user!!.email,
-                                isSelf = true
-                            )
-                        )
-                    }
-            }
+                    )
+                }
         }
     }
 }

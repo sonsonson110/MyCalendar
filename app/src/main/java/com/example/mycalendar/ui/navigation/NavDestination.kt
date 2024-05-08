@@ -9,4 +9,6 @@ sealed class NavDestination(open val route: String) {
         val navArg: String = "activityId",
         override val route: String = "scheduleEdit"
     ) : NavDestination(route)
+
+    data object LocationSearch : NavDestination(route = "locationSearch")
 }
