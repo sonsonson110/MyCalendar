@@ -17,6 +17,7 @@ fun User.toUserEntity() = UserEntity(
 )
 
 fun User.toUserMap() = hashMapOf(
+    "uid" to this.uid,
     "name" to this.name,
     "email" to this.email
 )

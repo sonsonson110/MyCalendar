@@ -15,3 +15,10 @@ fun Location.toLocationEntity() = LocationEntity(
     lat = this.lat!!,
     displayName = this.displayName!!,
 )
+
+fun Location.toLocationHashMap() = hashMapOf(
+    "placeId" to this.placeId!!,
+    "lon" to this.lon!!,
+    "lat" to this.lat!!,
+    "displayName" to this.displayName!!,
+)

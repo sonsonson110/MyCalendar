@@ -29,7 +29,7 @@ class ScheduleViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             // get activity list
-            activityRepository.getAllPlainActivity()
+            activityRepository.getAllPlainLocalActivities()
                 .collect { list ->
                     _scheduleUiState.update {
                         it.copy(
@@ -61,7 +61,7 @@ class ScheduleViewModel @Inject constructor(
         }
         // prevent blocking the ui thread (main)
         viewModelScope.launch(Dispatchers.IO) {
-            val activity = activityRepository.getActivityDetailById(activityId)
+            val activity = activityRepository.getLocalActivityDetailById(activityId)
             _scheduleUiState.update {
                 it.copy(
                     scheduleDetailUiState = ScheduleDetailUiState(
@@ -77,20 +77,22 @@ class ScheduleViewModel @Inject constructor(
     fun onActivityDelete() {
         val activity = _scheduleUiState.value.scheduleDetailUiState.selectedActivity
         viewModelScope.launch(Dispatchers.IO) {
-            activityRepository.deleteActivity(activity)
+            activityRepository.deleteLocalActivity(activity)
             // restore detail idle state
             _scheduleUiState.update {
                 it.copy(scheduleDetailUiState = ScheduleDetailUiState())
             }
         }
+        // also delete from firestore
+        activityRepository.deleteRemoteActivity(activity.id)
     }
 
     fun onMarkAsCompleted() {
-        viewModelScope.launch {
-            val activity = _scheduleUiState.value.scheduleDetailUiState.selectedActivity
-            val newActivity = activity.copy(isCompleted = !activity.isCompleted)
+        val activity = _scheduleUiState.value.scheduleDetailUiState.selectedActivity
+        val newActivity = activity.copy(isCompleted = !activity.isCompleted)
 
-            activityRepository.updateActivity(newActivity)
+        viewModelScope.launch {
+            activityRepository.updateLocalActivity(newActivity)
             // update according to the ui state
             _scheduleUiState.update {
                 it.copy(
@@ -100,6 +102,8 @@ class ScheduleViewModel @Inject constructor(
                 )
             }
         }
+        // also update on firestore
+        activityRepository.saveRemoteActivity(activity = newActivity)
     }
 
     companion object {

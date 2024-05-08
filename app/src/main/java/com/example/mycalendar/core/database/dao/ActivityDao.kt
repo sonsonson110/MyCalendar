@@ -21,7 +21,7 @@ interface ActivityDao {
     suspend fun getActivityWithLocationAndUserAndParticipantsById(activityId: Int): ActivityWithLocationAndUserAndParticipants
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addActivity(activityEntity: ActivityEntity)
+    suspend fun addActivity(activityEntity: ActivityEntity): Long
 
     @Update
     suspend fun updateActivity(activityEntity: ActivityEntity)

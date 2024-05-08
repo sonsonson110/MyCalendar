@@ -43,7 +43,7 @@ fun ScheduleModalNavigationDrawer(
                 Text(
                     "Pson calendar app",
                     modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Divider()
@@ -108,13 +108,13 @@ private fun WeatherSection(weather: NetworkResult<Weather>, modifier: Modifier =
                     Row {
                         Column {
                             Text(
-                                text = "${temp!!}°",
-                                style = MaterialTheme.typography.headlineLarge,
+                                text = "${"%.1f".format(temp!!)}°",
+                                style = MaterialTheme.typography.displayMedium,
                                 color = MaterialTheme.colorScheme.onSecondaryContainer
                             )
                             Text(
-                                text = "Feels like ${feelsLike}°",
-                                style = MaterialTheme.typography.labelLarge,
+                                text = "Feels like ${"%.1f".format(feelsLike)}°",
+                                style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSecondaryContainer
                             )
                         }

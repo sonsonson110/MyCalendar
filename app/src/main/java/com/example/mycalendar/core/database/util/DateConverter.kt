@@ -13,7 +13,7 @@ class DateConverter {
     }
 
     @TypeConverter
-    fun toDate(value: Date?): String? {
+    fun toString(value: Date?): String? {
         return value?.let { simpleDateFormat.format(it) }
     }
 }

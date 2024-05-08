@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -42,6 +43,7 @@ import com.example.mycalendar.core.data.model.Location
 import com.example.mycalendar.core.data.model.User
 import com.example.mycalendar.core.data.util.toCommonDateOnlyExpression
 import com.example.mycalendar.core.data.util.toDayTime
+import com.example.mycalendar.core.data.util.toMinute
 import com.example.mycalendar.feature.schedule.list.ScheduleState
 import com.example.mycalendar.ui.component.ScheduleDetailFieldTemplate
 import com.example.mycalendar.ui.theme.MyCalendarTheme
@@ -103,117 +105,177 @@ fun ScheduleDetailBottomSheetModal(
                 }
             }
 
-            Column(
-                modifier = modifier.padding(end = 15.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = activity.type!!.capitalize(),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = gutterWidth)
-                )
+            Text(
+                text = activity.type!!.capitalize(),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = gutterWidth)
+            )
 
-                // title
-                ScheduleDetailFieldTemplate(
-                    icon = {
-                        Box(modifier = Modifier
-                            .padding(top = 16.dp)
-                            .size(16.dp)
-                            .align(Alignment.Center)
-                            .clip(CircleShape)
-                            .background(activity.colorHex?.let { Color(it) } ?: defaultTypeColor)
-                        )
-                    },
-                    items = {
+            // title
+            ScheduleDetailFieldTemplate(
+                icon = {
+                    Box(modifier = Modifier
+                        .padding(top = 16.dp)
+                        .size(16.dp)
+                        .align(Alignment.Center)
+                        .clip(CircleShape)
+                        .background(activity.colorHex?.let { Color(it) } ?: defaultTypeColor)
+                    )
+                },
+                items = {
+                    Text(
+                        text = activity.title ?: "No title",
+                        style = Typography.headlineLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textDecoration = if (activity.isCompleted) TextDecoration.LineThrough else null,
+                    )
+
+                    // time
+                    if (activity.startTime != null) {
+                        val startDate =
+                            activity.startTime.toCommonDateOnlyExpression() + " · " + activity.startTime.toDayTime()
+                        val endDate =
+                            activity.endTime?.let { it.toCommonDateOnlyExpression() + " · " + it.toDayTime() }
                         Text(
-                            text = activity.title ?: "No title",
-                            style = Typography.headlineLarge,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            textDecoration = if (activity.isCompleted) TextDecoration.LineThrough else null,
+                            text = startDate,
+                            style = Typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
-
-                        // time
-                        if (activity.startTime != null)
+                        if (endDate != null)
                             Text(
-                                text = activity.startTime.toCommonDateOnlyExpression() + " · " + "${activity.startTime.toDayTime()} ${activity.endTime?.let { "- " + it.toDayTime() } ?: ""}",
+                                text = endDate,
                                 style = Typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
                     }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // meet link
+            if (activity.conferenceUrl != null) {
+                ScheduleDetailFieldTemplate(
+                    verticalAlignment = Alignment.CenterVertically,
+                    icon = {
+                        Image(
+                            painter = painterResource(id = R.drawable.google_meet_logo),
+                            contentDescription = "note",
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(32.dp),
+                        )
+                    },
+                    items = {
+                        Text(
+                            text = activity.conferenceUrl,
+                            color = urlColor,
+                            style = Typography.bodyLarge,
+                            textDecoration = TextDecoration.Underline,
+                        )
+                    }
                 )
-
                 Spacer(modifier = Modifier.height(8.dp))
+            }
 
-                // meet link
-                if (activity.conferenceUrl != null)
-                    ScheduleDetailFieldTemplate(
-                        verticalAlignment = Alignment.CenterVertically,
-                        icon = {
-                            Image(
-                                painter = painterResource(id = R.drawable.google_meet_logo),
-                                contentDescription = "note",
-                                modifier = Modifier
-                                    .align(Alignment.Center)
-                                    .size(32.dp),
-                            )
-                        },
-                        items = {
-                            Text(
-                                text = activity.conferenceUrl,
-                                color = urlColor,
-                                style = Typography.bodyLarge,
-                                textDecoration = TextDecoration.Underline,
-                            )
-                        }
-                    )
+            // location
+            if (activity.location != null) {
+                ScheduleDetailFieldTemplate(
+                    verticalAlignment = Alignment.CenterVertically,
+                    icon = {
+                        Image(
+                            painter = painterResource(id = R.drawable.google_map_logo),
+                            contentDescription = "note",
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .size(32.dp),
+                        )
+                    },
+                    items = {
+                        Text(
+                            text = activity.location.displayName!!,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = Typography.bodyLarge,
+                            modifier = Modifier.clickable { /*TODO: Link to google map location*/ }
+                        )
+                    }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
 
-                if (activity.location != null)
-                    ScheduleDetailFieldTemplate(
-                        verticalAlignment = Alignment.CenterVertically,
-                        icon = {
-                            Image(
-                                painter = painterResource(id = R.drawable.google_map_logo),
-                                contentDescription = "note",
-                                modifier = Modifier
-                                    .align(Alignment.Center)
-                                    .size(32.dp),
-                            )
-                        },
-                        items = {
-                            Text(
-                                text = activity.location.displayName!!,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                style = Typography.bodyLarge,
-                                modifier = Modifier.clickable { /*TODO: Link to google map location*/ }
-                            )
-                        }
-                    )
-
+            if (activity.reminderOffsetSeconds != null) {
                 ScheduleDetailFieldTemplate(
                     verticalAlignment = Alignment.CenterVertically,
                     icon = {
                         Icon(
-                            painter = painterResource(id = R.drawable.icon_globe_24),
-                            contentDescription = "profile",
+                            imageVector = Icons.Outlined.Notifications,
+                            contentDescription = "notify",
                             modifier = Modifier
                                 .align(Alignment.Center),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                    }, items = {
+                    },
+                    items = {
                         Text(
-                            text = activity.timeZone!!,
+                            text = "Before ${activity.reminderOffsetSeconds.toMinute()} minutes",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                     }
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
 
-                // account
+            ScheduleDetailFieldTemplate(
+                verticalAlignment = Alignment.CenterVertically,
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_globe_24),
+                        contentDescription = "profile",
+                        modifier = Modifier
+                            .align(Alignment.Center),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }, items = {
+                    Text(
+                        text = activity.timeZone!!,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // account
+            ScheduleDetailFieldTemplate(
+                verticalAlignment = Alignment.CenterVertically,
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_outline_today_24),
+                        contentDescription = "note",
+                        modifier = Modifier
+                            .align(Alignment.Center),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                items = {
+                    Text(
+                        text = activity.createdUser!!.email!!,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = Typography.bodyLarge
+                    )
+                }
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            if (activity.description != null)
                 ScheduleDetailFieldTemplate(
                     verticalAlignment = Alignment.CenterVertically,
                     icon = {
                         Icon(
-                            painter = painterResource(id = R.drawable.icon_outline_today_24),
+                            painter = painterResource(id = R.drawable.icon_notes_24),
                             contentDescription = "note",
                             modifier = Modifier
                                 .align(Alignment.Center),
@@ -222,55 +284,33 @@ fun ScheduleDetailBottomSheetModal(
                     },
                     items = {
                         Text(
-                            text = activity.createdUser!!.email!!,
+                            text = activity.description,
                             color = MaterialTheme.colorScheme.onSurface,
                             style = Typography.bodyLarge
                         )
                     }
                 )
-
-                if (activity.description != null)
-                    ScheduleDetailFieldTemplate(
-                        verticalAlignment = Alignment.CenterVertically,
-                        icon = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.icon_notes_24),
-                                contentDescription = "note",
-                                modifier = Modifier
-                                    .align(Alignment.Center),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        },
-                        items = {
-                            Text(
-                                text = activity.description,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                style = Typography.bodyLarge
-                            )
-                        }
-                    )
-            }
+        }
 
 
-            Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-            Box(
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .padding(bottom = 8.dp)
+        ) {
+            Text(
+                text = if (activity.isCompleted) "Mark as completed" else "Mark uncompleted",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = Typography.titleSmall,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .padding(bottom = 8.dp)
-            ) {
-                Text(
-                    text = if (activity.isCompleted) "Mark as completed" else "Mark uncompleted",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = Typography.titleSmall,
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(vertical = 16.dp)
-                        .padding(end = 16.dp)
-                        .clickable { onMarkAsCompleted() },
-                )
-            }
+                    .align(Alignment.CenterEnd)
+                    .padding(vertical = 16.dp)
+                    .padding(end = 16.dp)
+                    .clickable { onMarkAsCompleted() },
+            )
         }
     }
 }

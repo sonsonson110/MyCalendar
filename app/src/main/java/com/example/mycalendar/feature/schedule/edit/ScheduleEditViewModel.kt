@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mycalendar.core.data.model.Activity
 import com.example.mycalendar.core.data.repository.ActivityRepository
+import com.example.mycalendar.core.data.util.setTimeInfo
 import com.example.mycalendar.core.data.util.truncateTimeInfo
 import com.example.mycalendar.ui.navigation.NavDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,24 +27,33 @@ class ScheduleEditViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val data = activityRepository.getActivityDetailById(activityId)
+            val data = activityRepository.getLocalActivityDetailById(activityId)
             scheduleEditUiState = ScheduleEditUiState(activity = data)
         }
     }
 
-    fun onUiStateChange(activity: Activity = scheduleEditUiState.activity, isAllDay: Boolean = scheduleEditUiState.isAllDay) {
+    fun onUiStateChange(
+        activity: Activity = scheduleEditUiState.activity,
+        isAllDay: Boolean = scheduleEditUiState.isAllDay
+    ) {
         scheduleEditUiState = scheduleEditUiState.copy(activity = activity, isAllDay = isAllDay)
     }
 
     suspend fun onUpdateActivity() {
-        with(scheduleEditUiState) {
-            if (isAllDay) {
-                scheduleEditUiState = copy(activity = activity.copy(
-                    startTime = activity.startTime!!.truncateTimeInfo(),
-                    endTime = activity.endTime?.truncateTimeInfo()
-                ))
-            }
+        var finalStartTime = scheduleEditUiState.activity.startTime
+        var finalEndTime = scheduleEditUiState.activity.takeIf { it.type == "event" }?.endTime
+
+        if (scheduleEditUiState.isAllDay) {
+            finalStartTime = finalStartTime!!.truncateTimeInfo()
+            finalEndTime = finalEndTime?.setTimeInfo(23, 59)
         }
-        activityRepository.updateActivity(scheduleEditUiState.activity)
+
+        val newActivity = scheduleEditUiState.activity.copy(
+            startTime = finalStartTime,
+            endTime = finalEndTime
+        )
+        activityRepository.updateLocalActivity(newActivity)
+        activityRepository.saveRemoteActivity(newActivity)
+
     }
 }

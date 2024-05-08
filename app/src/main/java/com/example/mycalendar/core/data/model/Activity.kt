@@ -1,6 +1,7 @@
 package com.example.mycalendar.core.data.model
 
 import com.example.mycalendar.core.database.model.ActivityEntity
+import com.example.mycalendar.core.database.util.DateConverter
 import java.util.Date
 
 data class Activity(
@@ -41,4 +42,23 @@ fun Activity.toActivityEntity() = ActivityEntity(
     conferenceUrl = this.conferenceUrl,
     colorHex = this.colorHex,
     placeId = this.location?.placeId
+)
+
+fun Activity.toHashMap() = hashMapOf(
+    "id" to this.id,
+    "title" to this.title,
+    "description" to this.description,
+    // util from room type converter
+    "startTime" to DateConverter().toString(this.startTime),
+    "type" to this.type,
+    "timeZone" to this.timeZone,
+    "reminderOffsetSeconds" to this.reminderOffsetSeconds,
+    "isCompleted" to this.isCompleted,
+    "createdUser" to this.createdUser!!.toUserMap(),
+
+    "endTime" to DateConverter().toString(this.endTime),
+    "conferenceUrl" to this.conferenceUrl,
+    "colorHex" to this.colorHex,
+    "location" to this.location?.toLocationHashMap(),
+    "participants" to this.participants?.map { it.toUserMap() }
 )

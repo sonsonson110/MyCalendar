@@ -437,7 +437,7 @@ fun ScheduleInput(
             icon = {
                 Icon(
                     imageVector = Icons.Outlined.Notifications,
-                    contentDescription = "note",
+                    contentDescription = "notify",
                     modifier = Modifier
                         .align(Alignment.Center),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
