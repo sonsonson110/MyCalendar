@@ -2,6 +2,7 @@
 - A project for Mobile Application Development PTIT 2024
 - App idea is inspired by Google Calendar (Simplified version)
 - Project structure is inspired by [NiaApp on Github](https://github.com/android/nowinandroid)
+> **Try my current release apk [HERE](app/release/app-release.apk)**
 
 ## Features
 - Firebase integration
