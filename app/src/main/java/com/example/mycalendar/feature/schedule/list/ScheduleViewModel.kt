@@ -15,7 +15,9 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 private const val TAG = "ScheduleViewModel"
+
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
     private val activityRepository: ActivityRepository,
@@ -34,11 +36,12 @@ class ScheduleViewModel @Inject constructor(
                     _scheduleUiState.update {
                         it.copy(
                             activities = list,
-                            scheduleState = ScheduleState.SUCCESS
+                            scheduleState = if (list.isNotEmpty()) ScheduleState.SUCCESS else ScheduleState.EMPTY
                         )
                     }
                 }
         }
+
         viewModelScope.launch {
             // TODO: get current weather programmatically
             weatherRepository.getCurrentWeather(lon = 20.0, lat = 100.0)
@@ -103,7 +106,7 @@ class ScheduleViewModel @Inject constructor(
             }
         }
         // also update on firestore
-        activityRepository.saveRemoteActivity(activity = newActivity)
+        viewModelScope.launch { activityRepository.updateRemoteActivity(activity = newActivity) }
     }
 
     companion object {

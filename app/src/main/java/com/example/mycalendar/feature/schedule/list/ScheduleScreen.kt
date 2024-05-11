@@ -2,8 +2,11 @@ package com.example.mycalendar.feature.schedule.list
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -36,8 +39,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -93,21 +98,24 @@ fun ScheduleScreen(
                         }
                     },
                     onTodayScroll = {
-                        if (scheduleUiState.activities.isNotEmpty()) {
-                            val today = Date()
-                            val todayIndex = findIndexOfClosestDateFromList(
-                                today,
-                                scheduleUiState.activities.map { it.startTime!! })
-
+                        if (scheduleUiState.activities.isEmpty())
                             coroutineScope.launch {
-                                listState.scrollToItem(todayIndex)
-                                if (!scheduleUiState.activities[todayIndex].startTime!!.isEqualIgnoreTimeTo(
-                                        today
-                                    )
-                                )
-                                    snackbarHostState.showSnackbar("There is nothing to do today. Create one!")
+                                snackbarHostState.showSnackbar("There is nothing to do today. Create one!")
+                                return@launch
                             }
+
+                        val today = Date()
+                        val todayIndex = findIndexOfClosestDateFromList(
+                            today,
+                            scheduleUiState.activities.map { it.startTime!! })
+
+                        coroutineScope.launch {
+                            listState.scrollToItem(todayIndex)
+                            if (!scheduleUiState.activities[todayIndex].startTime!!.isEqualIgnoreTimeTo(today))
+                                snackbarHostState.showSnackbar("There is nothing to do today. Create one!")
                         }
+
+
                     })
             },
             floatingActionButton = {
@@ -116,9 +124,20 @@ fun ScheduleScreen(
                 }
             }
         ) { paddingValues ->
-            Box(modifier = Modifier.padding(paddingValues)) {
+            Column(modifier = Modifier.padding(paddingValues)) {
                 if (scheduleUiState.scheduleState == ScheduleState.LOADING)
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+
+                if (scheduleUiState.scheduleState == ScheduleState.EMPTY) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            "Create your first activity at the right bottom button!\nヾ(•ω•`)o",
+                            style = Typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.outline,
+                            textAlign = TextAlign.Center,
+                        )
+                    }
+                }
 
                 // prevent empty list appears on screen and breaks app logic
                 if (scheduleUiState.scheduleState == ScheduleState.SUCCESS) {
@@ -133,6 +152,8 @@ fun ScheduleScreen(
                             listState.scrollToItem(index = index)
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(8.dp))
 
                     StickyActivityList(
                         state = listState,

@@ -4,10 +4,8 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.userProfileChangeRequest
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -23,6 +21,8 @@ interface AuthRepository {
         email: String,
         password: String,
     ): Flow<AuthResult>
+
+    fun signOutUser()
 }
 
 class AuthRepositoryImpl @Inject constructor(
@@ -30,7 +30,7 @@ class AuthRepositoryImpl @Inject constructor(
 ) : AuthRepository {
 
     override fun getCurrentAuthUser(): FirebaseUser? {
-        val currentUser = firebaseAuth.currentUser
+        val currentUser: FirebaseUser? = firebaseAuth.currentUser
         return currentUser
     }
 
@@ -53,5 +53,9 @@ class AuthRepositoryImpl @Inject constructor(
     ): Flow<AuthResult> = flow {
         val response = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
         emit(response)
+    }
+
+    override fun signOutUser() {
+        firebaseAuth.signOut()
     }
 }

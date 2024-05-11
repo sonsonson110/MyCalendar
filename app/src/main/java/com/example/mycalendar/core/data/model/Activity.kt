@@ -44,21 +44,27 @@ fun Activity.toActivityEntity() = ActivityEntity(
     placeId = this.location?.placeId
 )
 
-fun Activity.toHashMap() = hashMapOf(
-    "id" to this.id,
-    "title" to this.title,
-    "description" to this.description,
-    // util from room type converter
-    "startTime" to DateConverter().toString(this.startTime),
-    "type" to this.type,
-    "timeZone" to this.timeZone,
-    "reminderOffsetSeconds" to this.reminderOffsetSeconds,
-    "isCompleted" to this.isCompleted,
-    "createdUser" to this.createdUser!!.toUserMap(),
-
-    "endTime" to DateConverter().toString(this.endTime),
-    "conferenceUrl" to this.conferenceUrl,
-    "colorHex" to this.colorHex,
-    "location" to this.location?.toLocationHashMap(),
-    "participants" to this.participants?.map { it.toUserMap() }
-)
+fun Activity.toHashMap(): Map<String, Any?> {
+    val map: HashMap<String, Any?> = hashMapOf(
+        "id" to this.id,
+        "title" to this.title,
+        "description" to this.description,
+        // util from room type converter
+        "startTime" to DateConverter().toString(this.startTime),
+        "type" to this.type,
+        "timeZone" to this.timeZone,
+        "reminderOffsetSeconds" to this.reminderOffsetSeconds,
+        "isCompleted" to this.isCompleted,
+        "createdUser" to this.createdUser!!.toUserMap(),
+    )
+    if (this.type == "event") {
+        map.putAll(
+            hashMapOf("endTime" to DateConverter().toString(this.endTime),
+                "conferenceUrl" to this.conferenceUrl,
+                "colorHex" to this.colorHex,
+                "location" to this.location?.toLocationHashMap(),
+                "participants" to this.participants?.map { it.toUserMap() })
+        )
+    }
+    return map
+}

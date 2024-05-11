@@ -17,7 +17,14 @@ class WeatherRepositoryImpl @Inject constructor(
     private val openWeatherMapNetwork: OpenWeatherMapNetwork,
 ): WeatherRepository {
     override fun getCurrentWeather(lat: Double, lon: Double): Flow<Weather> = flow {
-        val response = openWeatherMapNetwork.getCurrentWeather(lon, lat)
-        emit(response.toWeather())
+        while (true) {
+            val response = openWeatherMapNetwork.getCurrentWeather(lon, lat)
+            emit(response.toWeather())
+            kotlinx.coroutines.delay(THREE_HOURS_DELAY)
+        }
     }.flowOn(Dispatchers.IO)
+
+    companion object{
+        private const val THREE_HOURS_DELAY: Long = 3 * 60 * 60 * 1000
+    }
 }

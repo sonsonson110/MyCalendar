@@ -3,6 +3,7 @@ package com.example.mycalendar.core.database.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.example.mycalendar.core.data.model.Activity
 import com.example.mycalendar.core.data.model.Location
@@ -22,7 +23,9 @@ import java.util.Date
             parentColumns = ["uid"],
             childColumns = ["created_by_uid"],
         )
-    ]
+    ],
+    // for faster list queries
+    indices = [Index(value = ["start_time"])]
 )
 data class ActivityEntity(
     @PrimaryKey(autoGenerate = true) val id: Int,

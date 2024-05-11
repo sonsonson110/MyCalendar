@@ -70,7 +70,7 @@ fun StickyActivityList(
                             Modifier
                         },
                     ) {
-                        stickyFactory(currentDate!!)
+                        stickyFactory(currentDate)
                     }
                 }
             }

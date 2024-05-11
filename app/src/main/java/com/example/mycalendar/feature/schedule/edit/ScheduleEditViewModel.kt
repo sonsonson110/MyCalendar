@@ -53,7 +53,6 @@ class ScheduleEditViewModel @Inject constructor(
             endTime = finalEndTime
         )
         activityRepository.updateLocalActivity(newActivity)
-        activityRepository.saveRemoteActivity(newActivity)
-
+        activityRepository.updateRemoteActivity(newActivity)
     }
 }

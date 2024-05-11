@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mycalendar.core.data.repository.AuthRepository
 import com.example.mycalendar.core.data.repository.UserRepository
-import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -45,7 +44,6 @@ class SignupViewModel @Inject constructor(
                             email = email,
                             isSelf = false
                         )
-                        signupUiState = signupUiState.copy(signupState = SignupState.SUCCESS)
                         // store in local database & remote on success
                         newUser.let {
                             userRepository.createLocalUser(it)
@@ -53,6 +51,11 @@ class SignupViewModel @Inject constructor(
                         }
                         // change display name in firebaseAuth
                         authRepository.updateAthUserDisplayName(name, authResult = data)
+                        // sign out immediately, force new user to login again
+                        authRepository.signOutUser()
+
+                        // when done every thing, commit by change ui state
+                        signupUiState = signupUiState.copy(signupState = SignupState.SUCCESS)
                     }
             }
         }

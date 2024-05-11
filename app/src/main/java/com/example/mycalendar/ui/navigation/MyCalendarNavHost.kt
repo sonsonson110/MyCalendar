@@ -22,8 +22,8 @@ fun MyCalendarNavHost(
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination = NavDestination.Login.route,
-//        startDestination = NavDestination.Schedule.route,
+//        startDestination = NavDestination.Login.route,
+        startDestination = NavDestination.Schedule.route,
     ) {
         composable(
             route = NavDestination.Login.route
