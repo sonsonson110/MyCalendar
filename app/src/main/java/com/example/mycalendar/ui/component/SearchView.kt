@@ -3,10 +3,8 @@ package com.example.mycalendar.ui.component
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -21,35 +19,25 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.mycalendar.core.data.model.Location
-import com.example.mycalendar.ui.component.edit.NoDecorationTextField
-import com.example.mycalendar.ui.component.search.LocationItem
-import com.example.mycalendar.ui.theme.MyCalendarTheme
 
 @Composable
-fun <T> SearchView(
-    items: List<T>,
-    itemFactory: @Composable (T) -> Unit,
+fun SearchView(
     onNavigateBack: () -> Unit,
+    query: String,
+    onQueryChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
-    var text by remember { mutableStateOf("") }
-
     Scaffold(
         topBar = {
             SearchViewTopBar(
                 placeHolder = "Add location",
-                query = text,
-                onQueryChange = { text = it },
+                query = query,
+                onQueryChange = { onQueryChange(it) },
                 onNavigateBack = onNavigateBack,
-                onClearQuery = { text = "" }
+                onClearQuery = { onQueryChange("") }
             )
         }
     ) { paddingValues ->
@@ -58,22 +46,7 @@ fun <T> SearchView(
                 .padding(paddingValues)
                 .fillMaxWidth()
         ) {
-            Column {
-                ScheduleDetailFieldTemplate(
-                    icon = {},
-                    items = {
-                        Text(
-                            text = "Result",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(vertical = 16.dp),
-                        )
-                    })
-                items.forEach {
-                    itemFactory(it)
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-            }
+            Column(content = content)
         }
     }
 }
@@ -82,7 +55,7 @@ fun <T> SearchView(
 @Composable
 fun SearchViewTopBar(
     placeHolder: String,
-    query: String = "",
+    query: String,
     onQueryChange: (String) -> Unit,
     onClearQuery: () -> Unit,
     onNavigateBack: () -> Unit,
@@ -96,13 +69,14 @@ fun SearchViewTopBar(
                     textStyle = MaterialTheme.typography.titleLarge.copy(
                         color = MaterialTheme.colorScheme.onSurface,
                     ),
+                    singleLine = true,
                     placeholder = {
                         Text(
                             text = placeHolder,
                             style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                    }
+                    },
                 )
             },
             navigationIcon = {

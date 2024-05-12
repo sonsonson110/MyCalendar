@@ -10,7 +10,6 @@ import com.example.mycalendar.core.data.model.User
 import com.example.mycalendar.core.data.repository.AuthRepository
 import com.example.mycalendar.core.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -45,9 +44,6 @@ class LoginViewModel @Inject constructor(
                     )
                 }
                 .collect { data ->
-                    loginUiState = loginUiState.copy(
-                        loginState = LoginState.SUCCESS
-                    )
                     Log.d(TAG, "signInWithEmailAndPassword: ${data.user?.uid}")
                     // add/update to local db current user
                     userRepository.createLocalUser(
@@ -57,6 +53,10 @@ class LoginViewModel @Inject constructor(
                             email = data.user!!.email,
                             isSelf = true
                         )
+                    )
+
+                    loginUiState = loginUiState.copy(
+                        loginState = LoginState.SUCCESS
                     )
                 }
         }

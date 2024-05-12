@@ -2,6 +2,7 @@ package com.example.mycalendar.core.database.di
 
 import com.example.mycalendar.core.database.MyCalendarDatabase
 import com.example.mycalendar.core.database.dao.ActivityDao
+import com.example.mycalendar.core.database.dao.LocationDao
 import com.example.mycalendar.core.database.dao.UserDao
 import dagger.Module
 import dagger.Provides
@@ -20,4 +21,9 @@ object DaosModule {
     fun providesUserDao(
         database: MyCalendarDatabase
     ): UserDao = database.userDao()
+
+    @Provides
+    fun providesLocationDao(
+        database: MyCalendarDatabase
+    ): LocationDao = database.locationDao()
 }

@@ -1,8 +1,9 @@
 package com.example.mycalendar.feature.schedule.edit
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mycalendar.ui.component.edit.ScheduleInput
 import kotlinx.coroutines.launch
 
@@ -10,9 +11,9 @@ import kotlinx.coroutines.launch
 fun ScheduleEditScreen(
     onNavigateBack: () -> Unit,
     onNavigateToLocationPick: () -> Unit,
-    viewModel: ScheduleEditViewModel = hiltViewModel()
+    viewModel: ScheduleEditViewModel,
 ) {
-    val scheduleEditUiState = viewModel.scheduleEditUiState
+    val scheduleEditUiState by viewModel.scheduleEditUiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
     ScheduleInput(
         isCreate = false,

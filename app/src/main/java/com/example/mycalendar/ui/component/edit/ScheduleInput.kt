@@ -54,11 +54,11 @@ import com.example.mycalendar.core.data.util.setTimeInfo
 import com.example.mycalendar.core.data.util.toMinute
 import com.example.mycalendar.core.data.util.toSecond
 import com.example.mycalendar.core.data.util.updateDateWithMillis
+import com.example.mycalendar.ui.component.NoDecorationTextField
 import com.example.mycalendar.ui.component.ScheduleDetailFieldTemplate
 import com.example.mycalendar.ui.theme.MyCalendarTheme
 import com.example.mycalendar.ui.theme.defaultTypeColor
 import java.util.Date
-import java.util.TimeZone
 
 val colorHexNameHashMap = hashMapOf(
     0xffde583c to "Tomato",
@@ -289,7 +289,6 @@ fun ScheduleInput(
         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
         // timezone info
-        val timezone = TimeZone.getDefault().id
         ScheduleDetailFieldTemplate(
             verticalAlignment = Alignment.CenterVertically,
             icon = {
@@ -302,7 +301,7 @@ fun ScheduleInput(
                 )
             }, items = {
                 Text(
-                    text = timezone,
+                    text = activity.timeZone!!,
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
@@ -329,6 +328,7 @@ fun ScheduleInput(
                         value = activity.conferenceUrl ?: "",
                         onValueChange = { onActivityChange(activity.copy(conferenceUrl = it)) },
                         textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
+                        singleLine = true,
                         placeholder = {
                             Text(
                                 text = "Add video conferencing url",

@@ -1,60 +1,78 @@
 package com.example.mycalendar.feature.search
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.mycalendar.core.data.model.Location
+import com.example.mycalendar.ui.component.ScheduleDetailFieldTemplate
 import com.example.mycalendar.ui.component.SearchView
 import com.example.mycalendar.ui.component.search.LocationItem
-import com.example.mycalendar.ui.theme.MyCalendarTheme
+
+private const val TAG = "LocationSearchScreen"
 
 @Composable
 fun LocationSearchScreen(
     onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier,
+    // this screen depends totally on the parent viewModel
+    // for re-usability, only pass the data and callbacks
+    query: String,
+    onQueryChange: (String) -> Unit,
+    locationSearchUiState: LocationSearchUiState,
+    onLocationSelected: (Location) -> Unit,
 ) {
-    val locations = listOf(
-        Location(displayName = "Tower of London, Tower Hill, Tower Liberty, Whitechapel, London, Greater London, England, EC3N 4AB, United Kingdom"),
-        Location(displayName = "London, Greater London, England, EC3N 4AB, United Kingdom"),
-        Location(
-            displayName = "Tower Bridge, Tower Bridge, Tower Liberty, Wapping, London, Greater London, England, SE1 2LY, United Kingdom"
-        )
-    )
-    SearchView(items = locations, itemFactory = {
-        LocationItem(it)
-        Spacer(modifier = Modifier.height(4.dp))
-    }, onNavigateBack = onNavigateBack)
-}
+    SearchView(
+        query = query,
+        onQueryChange = onQueryChange,
+        onNavigateBack = onNavigateBack
+    ) {
+        Spacer(modifier = Modifier.height(4.dp)) // top bar margin
 
-@Preview
-@Composable
-fun LocationSearchViewPreview() {
-    MyCalendarTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            val locations = listOf(
-                Location(displayName = "Tower of London, Tower Hill, Tower Liberty, Whitechapel, London, Greater London, England, EC3N 4AB, United Kingdom"),
-                Location(displayName = "London, Greater London, England, EC3N 4AB, United Kingdom"),
-                Location(
-                    displayName = "Tower Bridge, Tower Bridge, Tower Liberty, Wapping, London, Greater London, England, SE1 2LY, United Kingdom"
+        if (locationSearchUiState is LocationSearchUiState.Success) {
+            if (!locationSearchUiState.isEmpty()) {
+                ScheduleDetailFieldTemplate(
+                    icon = {},
+                    items = {
+                        Text(
+                            text = "Location results",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(vertical = 16.dp),
+                        )
+                    })
+                // display results
+                locationSearchUiState.autocompleteLocations.forEach { location ->
+                    LocationItem(location, onClick = {
+                        onLocationSelected(location); onNavigateBack()
+                    })
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            } else {
+                Text(
+                    text = "We found nothing, try to search for other locations\n🫠",
+                    color = MaterialTheme.colorScheme.outline,
+                    style = MaterialTheme.typography.headlineSmall,
+                    textAlign = TextAlign.Center
                 )
-            )
-            SearchView(
-                items = locations,
-                itemFactory = {
-                    LocationItem(it)
-                    Spacer(modifier = Modifier.height(4.dp))
-                },
-                onNavigateBack = { }
-            )
+            }
+
+        } else if (locationSearchUiState is LocationSearchUiState.LoadFailed) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(
+                    text = "Error",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.headlineSmall,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }

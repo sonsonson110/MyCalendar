@@ -23,7 +23,7 @@ data class Activity(
 ) {
     fun isDateRangeValid(): Boolean {
         if (type == "event")
-            return startTime!!.before(endTime) || startTime.equals(endTime)
+            return startTime!!.before(endTime) || startTime == endTime
         return true
     }
 }

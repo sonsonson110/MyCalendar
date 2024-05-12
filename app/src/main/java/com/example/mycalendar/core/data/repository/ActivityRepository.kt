@@ -1,6 +1,5 @@
 package com.example.mycalendar.core.data.repository
 
-import android.util.Log
 import com.example.mycalendar.core.data.model.Activity
 import com.example.mycalendar.core.data.model.toActivityEntity
 import com.example.mycalendar.core.data.model.toHashMap
@@ -33,24 +32,24 @@ class ActivityRepositoryImpl @Inject constructor(
 ) :
     ActivityRepository {
     override fun getAllPlainLocalActivities(): Flow<List<Activity>> {
-        return activityDao.getAllActivityEntity().map { it.map(ActivityEntity::toActivity) }
+        return activityDao.getPlainList().map { it.map(ActivityEntity::toActivity) }
     }
 
     override suspend fun getLocalActivityDetailById(activityId: Int): Activity {
-        return activityDao.getActivityWithLocationAndUserAndParticipantsById(activityId)
+        return activityDao.getDetailOneById(activityId)
             .toActivity()
     }
 
     override suspend fun addLocalActivity(activity: Activity): Int {
-        return activityDao.addActivity(activity.toActivityEntity()).toInt()
+        return activityDao.insert(activity.toActivityEntity()).toInt()
     }
 
     override suspend fun updateLocalActivity(activity: Activity) {
-        activityDao.updateActivity(activity.toActivityEntity())
+        activityDao.update(activity.toActivityEntity())
     }
 
     override suspend fun deleteLocalActivity(activity: Activity) {
-        activityDao.deleteActivity(activity.toActivityEntity())
+        activityDao.delete(activity.toActivityEntity())
     }
 
     override fun addRemoteActivity(activity: Activity) {

@@ -23,7 +23,7 @@ private interface RetrofitLocationIqApi {
         @Query("key") key: String,
     ): NetworkLocation
 
-    @GET(value="autocomplete?limit=5")
+    @GET(value="autocomplete?limit=4")
     suspend fun getAutocompleteLocations(
         @Query("q") q: String,
         @Query("key") key: String,

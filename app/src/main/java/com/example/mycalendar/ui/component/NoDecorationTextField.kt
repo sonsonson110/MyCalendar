@@ -1,4 +1,4 @@
-package com.example.mycalendar.ui.component.edit
+package com.example.mycalendar.ui.component
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues

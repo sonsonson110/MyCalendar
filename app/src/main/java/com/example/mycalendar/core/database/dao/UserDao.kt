@@ -10,11 +10,11 @@ import com.example.mycalendar.core.database.model.UserEntity
 @Dao
 interface UserDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addUserEntity(userEntity: UserEntity)
+    suspend fun insert(userEntity: UserEntity)
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateUserEntity(userEntity: UserEntity)
+    suspend fun update(userEntity: UserEntity)
 
     @Query("SELECT * FROM user WHERE is_self = 1")
-    suspend fun getCurrentUserEntity(): UserEntity
+    suspend fun getActiveUserEntity(): UserEntity
 }

@@ -14,18 +14,18 @@ import kotlinx.coroutines.flow.Flow
 interface ActivityDao {
     // use flow to notify new data to consumer when data changes
     @Query("SELECT * FROM Activity ORDER BY start_time")
-    fun getAllActivityEntity(): Flow<List<ActivityEntity>>
+    fun getPlainList(): Flow<List<ActivityEntity>>
 
     // only get it oneshot, mark it as `suspend`
     @Query("SELECT * FROM Activity WHERE id = :activityId")
-    suspend fun getActivityWithLocationAndUserAndParticipantsById(activityId: Int): ActivityWithLocationAndUserAndParticipants
+    suspend fun getDetailOneById(activityId: Int): ActivityWithLocationAndUserAndParticipants
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addActivity(activityEntity: ActivityEntity): Long
+    suspend fun insert(activityEntity: ActivityEntity): Long
 
     @Update
-    suspend fun updateActivity(activityEntity: ActivityEntity)
+    suspend fun update(activityEntity: ActivityEntity)
 
     @Delete
-    suspend fun deleteActivity(activityEntity: ActivityEntity)
+    suspend fun delete(activityEntity: ActivityEntity)
 }

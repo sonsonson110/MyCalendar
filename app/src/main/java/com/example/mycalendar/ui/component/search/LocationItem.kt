@@ -1,5 +1,7 @@
 package com.example.mycalendar.ui.component.search
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.LocationOn
@@ -13,30 +15,32 @@ import com.example.mycalendar.core.data.model.Location
 import com.example.mycalendar.ui.component.ScheduleDetailFieldTemplate
 
 @Composable
-fun LocationItem(location: Location,) {
-    ScheduleDetailFieldTemplate(
-        verticalAlignment = Alignment.CenterVertically,
-        icon = {
-            Icon(
-                imageVector = Icons.Outlined.LocationOn,
-                contentDescription = "location",
-                modifier = Modifier
-                    .align(Alignment.Center)
-            )
-        },
-        items = {
-            Column {
-                Text(
-                    text = location.getDisplayPlace()!!,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface
+fun LocationItem(location: Location, onClick: () -> Unit) {
+    Box(modifier = Modifier.clickable { onClick() }) {
+        ScheduleDetailFieldTemplate(
+            verticalAlignment = Alignment.CenterVertically,
+            icon = {
+                Icon(
+                    imageVector = Icons.Outlined.LocationOn,
+                    contentDescription = "location",
+                    modifier = Modifier
+                        .align(Alignment.Center)
                 )
-                Text(
-                    text = location.getDisplayAddress()!!,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            },
+            items = {
+                Column {
+                    Text(
+                        text = location.getDisplayPlace()!!,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = location.getDisplayAddress()!!,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
-        }
-    )
+        )
+    }
 }

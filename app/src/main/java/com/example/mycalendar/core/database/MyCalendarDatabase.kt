@@ -4,6 +4,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.mycalendar.core.database.dao.ActivityDao
+import com.example.mycalendar.core.database.dao.LocationDao
 import com.example.mycalendar.core.database.dao.UserDao
 import com.example.mycalendar.core.database.model.ActivityEntity
 import com.example.mycalendar.core.database.model.EventUserCrossRef
@@ -24,4 +25,5 @@ import com.example.mycalendar.core.database.util.DateConverter
 abstract class MyCalendarDatabase: RoomDatabase() {
     abstract fun activityDao(): ActivityDao
     abstract fun userDao(): UserDao
+    abstract fun locationDao(): LocationDao
 }

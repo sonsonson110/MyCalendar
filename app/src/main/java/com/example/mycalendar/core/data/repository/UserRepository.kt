@@ -23,15 +23,15 @@ class UserRepositoryImpl @Inject constructor(
     private val userDao: UserDao,
 ): UserRepository {
     override suspend fun getCurrentUser(): User {
-        return userDao.getCurrentUserEntity().toUser()
+        return userDao.getActiveUserEntity().toUser()
     }
 
     override suspend fun setCurrentUser(user: User) {
-        userDao.updateUserEntity(user.toUserEntity())
+        userDao.update(user.toUserEntity())
     }
 
     override suspend fun createLocalUser(user: User) {
-        userDao.addUserEntity(user.toUserEntity())
+        userDao.insert(user.toUserEntity())
     }
 
     override fun createRemoteUser(user: User) {
