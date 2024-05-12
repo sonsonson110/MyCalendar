@@ -1,5 +1,8 @@
 package com.example.mycalendar.ui.component.schedule
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
@@ -22,7 +26,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,24 +36,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.mycalendar.R
 import com.example.mycalendar.core.data.model.Activity
 import com.example.mycalendar.core.data.model.Location
-import com.example.mycalendar.core.data.model.User
 import com.example.mycalendar.core.data.util.toCommonDateOnlyExpression
 import com.example.mycalendar.core.data.util.toDayTime
 import com.example.mycalendar.core.data.util.toMinute
 import com.example.mycalendar.feature.schedule.list.ScheduleState
 import com.example.mycalendar.ui.component.ScheduleDetailFieldTemplate
-import com.example.mycalendar.ui.theme.MyCalendarTheme
 import com.example.mycalendar.ui.theme.Typography
 import com.example.mycalendar.ui.theme.defaultTypeColor
 import com.example.mycalendar.ui.theme.urlColor
-import java.util.Date
 
 @Composable
 fun ScheduleDetailBottomSheetModal(
@@ -61,7 +61,8 @@ fun ScheduleDetailBottomSheetModal(
     onMarkAsCompleted: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val gutterWidth = 64.dp
+    val context = LocalContext.current
+    val gutterWidth = 56.dp
     Column(
         modifier = modifier.padding(top = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -192,12 +193,27 @@ fun ScheduleDetailBottomSheetModal(
                         )
                     },
                     items = {
-                        Text(
-                            text = activity.location.displayName!!,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            style = Typography.bodyLarge,
-                            modifier = Modifier.clickable { /*TODO: Link to google map location*/ }
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = activity.location.getDisplayPlace()!!,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = activity.location.getDisplayAddress()!!,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Icon(
+                                painter = painterResource(id = R.drawable.icon_open_in_new_24),
+                                contentDescription = "open",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.clickable { openGoogleMapByLocation(activity.location, context) }
+                            )
+                        }
                     }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -315,31 +331,9 @@ fun ScheduleDetailBottomSheetModal(
     }
 }
 
-@Preview
-@Composable
-fun ScheduleDetailBottomSheetModalPreview() {
-    MyCalendarTheme(darkTheme = true) {
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            ScheduleDetailBottomSheetModal(
-                scheduleState = ScheduleState.SUCCESS,
-                navigateToScheduleEdit = {},
-                onItemDelete = {},
-                onMarkAsCompleted = {},
-                activity = Activity(
-                    isCompleted = true,
-                    type = "event",
-                    startTime = Date(),
-                    endTime = Date(),
-                    description = "ActivityActivityActivityActivityActivity",
-                    conferenceUrl = "meet.google.com/wjj-pssp-msr",
-                    location = Location(displayName = "58 P. Lê Văn Hiến, Đông Ngạc, Bắc Từ Liêm, Hà Nội"),
-                    colorHex = 4283405155L,
-                    createdUser = User(email = "pson395u9@gmail.com")
-                )
-            )
-        }
-    }
+private fun openGoogleMapByLocation(location: Location, context: Context) {
+    val mapIntentUri = Uri.parse("geo:0,0?q=${location.lat},${location.lon}")
+    val mapIntent = Intent(Intent.ACTION_VIEW, mapIntentUri)
+    mapIntent.setPackage("com.google.android.apps.maps")
+    context.startActivity(mapIntent)
 }
