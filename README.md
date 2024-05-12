@@ -5,6 +5,7 @@
 > **Try my current release apk [HERE](app/release/app-release.apk)**
 
 ## Features
+- Reminder feature: [Schedule alarms](https://developer.android.com/develop/background-work/services/alarms/schedule) and [notification](https://developer.android.com/develop/ui/views/notifications/build-notification)
 - Firebase integration
   - [Authentication](https://firebase.google.com/docs/auth)
   - [Firestore](https://firebase.google.com/docs/firestore/quickstart): store app's remote data
