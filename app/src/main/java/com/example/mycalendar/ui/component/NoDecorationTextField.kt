@@ -24,11 +24,13 @@ fun NoDecorationTextField(
     textStyle: TextStyle,
     singleLine: Boolean = true,
     placeholder: @Composable () -> Unit,
+    enabled: Boolean = true,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
+        enabled = enabled,
         modifier = modifier,
         textStyle = textStyle,
         // make cursor color primary
@@ -37,7 +39,7 @@ fun NoDecorationTextField(
         TextFieldDefaults.DecorationBox(
             value = value,
             innerTextField = it,
-            enabled = true,
+            enabled = enabled,
             singleLine = singleLine,
             visualTransformation = VisualTransformation.None,
             interactionSource = interactionSource,

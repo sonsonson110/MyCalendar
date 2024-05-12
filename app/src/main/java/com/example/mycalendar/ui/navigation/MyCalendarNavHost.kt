@@ -61,31 +61,33 @@ fun MyCalendarNavHost(
             route = NavDestination.Schedule.route
         ) {
             ScheduleScreen(
-                navigateToScheduleEdit = { activityId -> navController.navigate(route = "${NavDestination.ScheduleEdit().route}/$activityId") },
-                navigateToScheduleAdd = { navController.navigate(route = NavDestination.ScheduleAdd.route) },
+                navigateToScheduleEdit = { activityId ->
+                    val graph = NavGraph.ScheduleEditGraph
+                    navController.navigate(route = "${graph.route}/$activityId")
+                },
+                navigateToScheduleAdd = { navController.navigate(route = NavGraph.ScheduleAddGraph.route) },
             )
         }
 
         navigation(
-            startDestination = NavDestination.ScheduleAdd.route,
-            route = NavGraph.ScheduleAdd.route // route id for navigation graph
+            startDestination = NavGraph.ScheduleAddGraph.ScheduleAdd.route,
+            route = NavGraph.ScheduleAddGraph.route // route id for navigation graph
         ) {
             composable(
-//                route = NavDestination.ScheduleAdd.route
-                route = NavDestination.ScheduleAdd.route
+                route = NavGraph.ScheduleAddGraph.ScheduleAdd.route
             ) { backStackEntry ->
                 // MUST NOT forget to create viewModel manually when define `composable` inside a `navigation`
                 val scheduleAddViewModel =
                     backStackEntry.sharedViewModel<ScheduleAddViewModel>(navController = navController)
                 ScheduleAddScreen(
                     onNavigateBack = { navController.popBackStack() },
-                    onNavigateToLocationPick = { navController.navigate(NavDestination.LocationSearch.route) },
+                    onNavigateToLocationPick = { navController.navigate(NavGraph.ScheduleAddGraph.LocationSearch.route) },
                     viewModel = scheduleAddViewModel,
                 )
             }
 
             composable(
-                route = NavDestination.LocationSearch.route
+                route = NavGraph.ScheduleAddGraph.LocationSearch.route
             ) { backStackEntry ->
                 // get the viewModel from parent
                 val scheduleAddViewModel =
@@ -103,25 +105,27 @@ fun MyCalendarNavHost(
         }
 
         navigation(
-            startDestination = NavDestination.ScheduleEdit().route,
-            route = NavGraph.ScheduleEdit.route
+            startDestination = NavGraph.ScheduleEditGraph.ScheduleEdit.route,
+            route = NavGraph.ScheduleEditGraph.routeWithArg!!,
+            arguments = listOf(navArgument(NavGraph.ScheduleEditGraph.navArg!!) { type = NavType.IntType })
         ) {
             composable(
-                route = "${NavDestination.ScheduleEdit().route}/{${NavDestination.ScheduleEdit().navArg}}",
-                arguments = listOf(navArgument(NavDestination.ScheduleEdit().navArg) {
+                route = NavGraph.ScheduleEditGraph.ScheduleEdit.route,
+                arguments = listOf(navArgument(NavGraph.ScheduleEditGraph.navArg) {
                     type = NavType.IntType
                 })
             ) { backStackEntry ->
-                val scheduleEditViewModel = backStackEntry.sharedViewModel<ScheduleEditViewModel>(navController = navController)
+                val scheduleEditViewModel =
+                    backStackEntry.sharedViewModel<ScheduleEditViewModel>(navController = navController)
                 ScheduleEditScreen(
                     onNavigateBack = { navController.popBackStack() },
-                    onNavigateToLocationPick = { navController.navigate(NavDestination.LocationSearch.route) },
+                    onNavigateToLocationPick = { navController.navigate(NavGraph.ScheduleEditGraph.LocationSearch.route) },
                     viewModel = scheduleEditViewModel,
                 )
             }
 
             composable(
-                route = NavDestination.LocationSearch.route
+                route = NavGraph.ScheduleEditGraph.LocationSearch.route
             ) { backStackEntry ->
                 // get the viewModel from parent
                 val scheduleEditViewModel =

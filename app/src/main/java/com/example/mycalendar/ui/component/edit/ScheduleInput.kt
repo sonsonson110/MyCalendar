@@ -23,6 +23,7 @@ import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -30,11 +31,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalMinimumInteractiveComponentEnforcement
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,21 +45,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.mycalendar.R
 import com.example.mycalendar.core.data.model.Activity
-import com.example.mycalendar.core.data.model.User
-import com.example.mycalendar.core.data.util.addByHour
 import com.example.mycalendar.core.data.util.setTimeInfo
 import com.example.mycalendar.core.data.util.toMinute
 import com.example.mycalendar.core.data.util.toSecond
 import com.example.mycalendar.core.data.util.updateDateWithMillis
+import com.example.mycalendar.feature.schedule.edit.ScheduleEditState
 import com.example.mycalendar.ui.component.NoDecorationTextField
 import com.example.mycalendar.ui.component.ScheduleDetailFieldTemplate
-import com.example.mycalendar.ui.theme.MyCalendarTheme
 import com.example.mycalendar.ui.theme.defaultTypeColor
-import java.util.Date
 
 val colorHexNameHashMap = hashMapOf(
     0xffde583c to "Tomato",
@@ -73,6 +70,7 @@ val colorHexNameHashMap = hashMapOf(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleInput(
+    editState: ScheduleEditState,
     onNavigateBack: () -> Unit,
     activity: Activity,
     onActivityChange: (Activity) -> Unit,
@@ -84,6 +82,13 @@ fun ScheduleInput(
     onLocationPick: () -> Unit,
 ) {
     val gutterWidth = 64.dp
+
+    LaunchedEffect(key1 = editState) {
+        if (editState == ScheduleEditState.SAVED) {
+            onNavigateBack()
+        }
+    }
+
     Column(
         modifier = modifier
             .padding(top = 8.dp)
@@ -102,12 +107,17 @@ fun ScheduleInput(
                 contentDescription = "close",
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.clickable { onNavigateBack() })
+
             Spacer(modifier = Modifier.weight(1f))
+
             Button(
                 onClick = onActivitySave,
-                enabled = activity.isDateRangeValid()
+                enabled = editState == ScheduleEditState.USER_INPUT && activity.isConferenceUrlValid() && activity.isDateRangeValid()
             ) {
-                Text(text = "Save", style = MaterialTheme.typography.labelLarge)
+                if (editState == ScheduleEditState.SAVING)
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                else
+                    Text(text = "Save", style = MaterialTheme.typography.labelLarge)
             }
             Spacer(modifier = Modifier.width(15.dp))
         }
@@ -117,6 +127,7 @@ fun ScheduleInput(
             icon = { Spacer(modifier = Modifier.width(gutterWidth)) },
             items = {
                 NoDecorationTextField(
+                    enabled = editState == ScheduleEditState.USER_INPUT,
                     value = activity.title ?: "",
                     onValueChange = {
                         onActivityChange(activity.copy(title = it))
@@ -155,7 +166,7 @@ fun ScheduleInput(
 
         Divider(modifier = Modifier.padding(vertical = 8.dp))
 
-        // account selection
+        // account section
         ScheduleDetailFieldTemplate(
             verticalAlignment = Alignment.CenterVertically,
             icon = {
@@ -205,10 +216,11 @@ fun ScheduleInput(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }, items = {
+                var switchModifier = Modifier.fillMaxWidth()
+                if (editState == ScheduleEditState.USER_INPUT)
+                    switchModifier = switchModifier.clickable { onIsAllDayChange(!isAllDay) }
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onIsAllDayChange(!isAllDay) },
+                    modifier = switchModifier,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
@@ -221,7 +233,11 @@ fun ScheduleInput(
                     CompositionLocalProvider(LocalMinimumInteractiveComponentEnforcement provides false) {
                         Switch(
                             checked = isAllDay,
-                            onCheckedChange = { onIsAllDayChange(it) },
+                            onCheckedChange = {
+                                if (editState == ScheduleEditState.USER_INPUT) onIsAllDayChange(
+                                    it
+                                )
+                            },
                         )
                     }
                 }
@@ -325,6 +341,7 @@ fun ScheduleInput(
                 },
                 items = {
                     NoDecorationTextField(
+                        enabled = editState == ScheduleEditState.USER_INPUT,
                         value = activity.conferenceUrl ?: "",
                         onValueChange = { onActivityChange(activity.copy(conferenceUrl = it)) },
                         textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
@@ -358,7 +375,7 @@ fun ScheduleInput(
                         text = activity.location?.displayName ?: "Add location",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.clickable { onLocationPick() }
+                        modifier = Modifier.clickable { if(editState == ScheduleEditState.USER_INPUT) onLocationPick() }
                     )
                 }
             )
@@ -385,7 +402,7 @@ fun ScheduleInput(
                             ?: "Default color",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.clickable { openColorPickerDialog = true }
+                        modifier = Modifier.clickable { if(editState == ScheduleEditState.USER_INPUT) openColorPickerDialog = true }
                     )
                 }
             )
@@ -450,7 +467,7 @@ fun ScheduleInput(
                         ?: "Add notification",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.clickable { openNotificationPickerDialog = true }
+                    modifier = Modifier.clickable { if (editState == ScheduleEditState.USER_INPUT) openNotificationPickerDialog = true }
                 )
             }
         )
@@ -503,6 +520,7 @@ fun ScheduleInput(
             },
             items = {
                 NoDecorationTextField(
+                    enabled = editState == ScheduleEditState.USER_INPUT,
                     value = activity.description ?: "",
                     onValueChange = { onActivityChange(activity.copy(description = it)) },
                     textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
@@ -518,26 +536,5 @@ fun ScheduleInput(
         )
 
         Spacer(modifier = Modifier.height(8.dp))
-    }
-}
-
-@Preview
-@Composable
-fun ScheduleInputPreview() {
-    MyCalendarTheme {
-        Surface(color = MaterialTheme.colorScheme.background) {
-            val date = Date()
-            ScheduleInput(activity = Activity(
-                type = "event",
-                startTime = date,
-                endTime = date.addByHour(1),
-                createdUser = User(email = "pson34587q349@gmai.com")
-            ),
-                onActivityChange = {},
-                onNavigateBack = {},
-                onActivitySave = {},
-                onIsAllDayChange = {},
-                onLocationPick = {})
-        }
     }
 }

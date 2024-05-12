@@ -26,6 +26,12 @@ data class Activity(
             return startTime!!.before(endTime) || startTime == endTime
         return true
     }
+
+    fun isConferenceUrlValid(): Boolean {
+        if (conferenceUrl== null) return true
+        val regex = Regex("""https://meet\.google\.com/[a-zA-Z0-9-]{12}""")
+        return regex.matches(conferenceUrl)
+    }
 }
 
 fun Activity.toActivityEntity() = ActivityEntity(

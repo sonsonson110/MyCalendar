@@ -10,7 +10,6 @@ import com.example.mycalendar.core.data.repository.LocationRepository
 import com.example.mycalendar.core.data.util.setTimeInfo
 import com.example.mycalendar.core.data.util.truncateTimeInfo
 import com.example.mycalendar.feature.search.LocationSearchUiState
-import com.example.mycalendar.ui.navigation.NavDestination
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -35,7 +34,8 @@ class ScheduleEditViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
 ) : ViewModel() {
     private val activityId: Int =
-        checkNotNull(savedStateHandle[NavDestination.ScheduleEdit().navArg])
+//        checkNotNull(savedStateHandle[NavDestination.ScheduleEdit().navArg])
+        checkNotNull(savedStateHandle["activityId"])
 
     private val _scheduleEditUiState = MutableStateFlow(ScheduleEditUiState())
     var scheduleEditUiState = _scheduleEditUiState.asStateFlow()
@@ -81,22 +81,28 @@ class ScheduleEditViewModel @Inject constructor(
         _scheduleEditUiState.update { it.copy(activity = activity, isAllDay = isAllDay) }
     }
 
-    suspend fun onUpdateActivity() {
+    fun onUpdateActivity() {
+        _scheduleEditUiState.update { it.copy(scheduleEditState = ScheduleEditState.SAVING) }
+
         var finalStartTime = scheduleEditUiState.value.activity.startTime
         var finalEndTime = scheduleEditUiState.value.activity.takeIf { it.type == "event" }?.endTime
 
-        if (scheduleEditUiState.value.isAllDay) {
+        if (_scheduleEditUiState.value.isAllDay) {
             finalStartTime = finalStartTime!!.truncateTimeInfo()
             finalEndTime = finalEndTime?.setTimeInfo(23, 59)
         }
 
-        val newActivity = scheduleEditUiState.value.activity.copy(
+        val newActivity = _scheduleEditUiState.value.activity.copy(
             startTime = finalStartTime,
             endTime = finalEndTime
         )
-        newActivity.location?.let { locationRepository.addLocalLocation(it) }
-        activityRepository.updateLocalActivity(newActivity)
-        activityRepository.updateRemoteActivity(newActivity)
+        viewModelScope.launch {
+            newActivity.location?.let { locationRepository.addLocalLocation(it) }
+            activityRepository.updateLocalActivity(newActivity)
+            activityRepository.updateRemoteActivity(newActivity)
+
+            _scheduleEditUiState.update { it.copy(scheduleEditState = ScheduleEditState.SAVED) }
+        }
     }
 
     // ----------- Location search methods ---------------------------------------------------------

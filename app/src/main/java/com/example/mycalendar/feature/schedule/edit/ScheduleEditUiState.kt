@@ -12,5 +12,10 @@ data class ScheduleEditUiState(
         endTime = Date().addByHour(1),
         timeZone = TimeZone.getDefault().id
     ),
-    val isAllDay: Boolean = false
+    val isAllDay: Boolean = false,
+    val scheduleEditState: ScheduleEditState = ScheduleEditState.USER_INPUT
 )
+
+enum class ScheduleEditState {
+    USER_INPUT, SAVING, SAVED
+}

@@ -23,12 +23,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import com.example.mycalendar.core.data.util.toCommonDateOnlyExpression
 import com.example.mycalendar.core.data.util.toDayTime
+import com.example.mycalendar.feature.schedule.edit.ScheduleEditState
 import com.example.mycalendar.ui.component.ScheduleDetailFieldTemplate
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DateTimeSelectionField(
+    editState: ScheduleEditState = ScheduleEditState.USER_INPUT,
     date: Date,
     onDatePicked: (Long) -> Unit,
     onTimePicked: (Int, Int) -> Unit,
@@ -64,7 +66,7 @@ fun DateTimeSelectionField(
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier
                         .weight(1f, true)
-                        .clickable { showDatePicker = true }
+                        .clickable { if(editState == ScheduleEditState.USER_INPUT) showDatePicker = true }
                 )
 
                 // date picker component
@@ -95,7 +97,7 @@ fun DateTimeSelectionField(
                         text = date.toDayTime(),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.clickable { showTimePicker = true }
+                        modifier = Modifier.clickable { if(editState == ScheduleEditState.USER_INPUT) showTimePicker = true }
                     )
 
                     if (showTimePicker) {

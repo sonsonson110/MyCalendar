@@ -1,5 +1,6 @@
 package com.example.mycalendar.core.data.repository
 
+import android.util.Log
 import com.example.mycalendar.core.data.model.Activity
 import com.example.mycalendar.core.data.model.toActivityEntity
 import com.example.mycalendar.core.data.model.toHashMap
@@ -63,10 +64,15 @@ class ActivityRepositoryImpl @Inject constructor(
             .whereEqualTo("createdUser.uid", activity.createdUser!!.uid)
             .get().await()
 
-        val document = task.documents[0].id
-        // Update the document with the new data
-        firestore.collection("activity").document(document)
-            .set(activity.toHashMap(), SetOptions.merge())
+        try {
+            val document = task.documents[0].id
+            // Update the document with the new data
+            firestore.collection("activity").document(document)
+                .set(activity.toHashMap(), SetOptions.merge())
+        } catch (e: Exception) {
+            // no remote no data found
+            Log.e(TAG, e.toString())
+        }
     }
 
     override fun deleteRemoteActivity(activityId: Int) {
