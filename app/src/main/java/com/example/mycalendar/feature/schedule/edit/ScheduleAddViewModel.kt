@@ -2,6 +2,7 @@ package com.example.mycalendar.feature.schedule.edit
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mycalendar.core.alarm.AlarmScheduler
 import com.example.mycalendar.core.data.model.Activity
 import com.example.mycalendar.core.data.model.Location
 import com.example.mycalendar.core.data.repository.ActivityRepository
@@ -34,6 +35,7 @@ class ScheduleAddViewModel @Inject constructor(
     private val activityRepository: ActivityRepository,
     private val userRepository: UserRepository,
     private val locationRepository: LocationRepository,
+    private val alarmScheduler: AlarmScheduler,
 ) : ViewModel() {
     private val _scheduleEditUiState = MutableStateFlow(ScheduleEditUiState())
     var scheduleEditUiState = _scheduleEditUiState.asStateFlow()
@@ -96,6 +98,7 @@ class ScheduleAddViewModel @Inject constructor(
             startTime = finalStartTime,
             endTime = finalEndTime,
         )
+
         viewModelScope.launch {
             // insert to location table first
             newActivity.location?.let { locationRepository.addLocalLocation(location = it) }
@@ -103,6 +106,8 @@ class ScheduleAddViewModel @Inject constructor(
             val newId = activityRepository.addLocalActivity(newActivity)
             // change data id before send to firestore
             activityRepository.addRemoteActivity(newActivity.copy(id = newId))
+            // set the alarm
+            alarmScheduler.schedule(newActivity.copy(id = newId))
             // commit result by update ui state
             _scheduleEditUiState.update { it.copy(scheduleEditState = ScheduleEditState.SAVED) }
         }

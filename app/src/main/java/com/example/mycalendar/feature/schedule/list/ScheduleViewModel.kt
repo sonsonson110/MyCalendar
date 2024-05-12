@@ -3,6 +3,7 @@ package com.example.mycalendar.feature.schedule.list
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mycalendar.core.alarm.AlarmScheduler
 import com.example.mycalendar.core.data.model.NetworkResult
 import com.example.mycalendar.core.data.repository.ActivityRepository
 import com.example.mycalendar.core.data.repository.WeatherRepository
@@ -21,7 +22,8 @@ private const val TAG = "ScheduleViewModel"
 @HiltViewModel
 class ScheduleViewModel @Inject constructor(
     private val activityRepository: ActivityRepository,
-    private val weatherRepository: WeatherRepository
+    private val weatherRepository: WeatherRepository,
+    private val alarmScheduler: AlarmScheduler,
 ) : ViewModel() {
 
     private val _scheduleUiState: MutableStateFlow<ScheduleUiState> =
@@ -81,6 +83,8 @@ class ScheduleViewModel @Inject constructor(
         val activity = _scheduleUiState.value.scheduleDetailUiState.selectedActivity
         viewModelScope.launch(Dispatchers.IO) {
             activityRepository.deleteLocalActivity(activity)
+            // remove from alarm
+            alarmScheduler.cancel(activity)
             // restore detail idle state
             _scheduleUiState.update {
                 it.copy(scheduleDetailUiState = ScheduleDetailUiState())

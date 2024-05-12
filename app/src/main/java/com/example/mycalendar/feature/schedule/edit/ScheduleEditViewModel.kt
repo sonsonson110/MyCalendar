@@ -3,6 +3,7 @@ package com.example.mycalendar.feature.schedule.edit
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mycalendar.core.alarm.AlarmScheduler
 import com.example.mycalendar.core.data.model.Activity
 import com.example.mycalendar.core.data.model.Location
 import com.example.mycalendar.core.data.repository.ActivityRepository
@@ -10,6 +11,7 @@ import com.example.mycalendar.core.data.repository.LocationRepository
 import com.example.mycalendar.core.data.util.setTimeInfo
 import com.example.mycalendar.core.data.util.truncateTimeInfo
 import com.example.mycalendar.feature.search.LocationSearchUiState
+import com.example.mycalendar.ui.navigation.NavGraph
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -32,10 +34,9 @@ class ScheduleEditViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val activityRepository: ActivityRepository,
     private val locationRepository: LocationRepository,
+    private val alarmScheduler: AlarmScheduler,
 ) : ViewModel() {
-    private val activityId: Int =
-//        checkNotNull(savedStateHandle[NavDestination.ScheduleEdit().navArg])
-        checkNotNull(savedStateHandle["activityId"])
+    private val activityId: Int = checkNotNull(savedStateHandle[NavGraph.ScheduleEditGraph.navArg!!])
 
     private val _scheduleEditUiState = MutableStateFlow(ScheduleEditUiState())
     var scheduleEditUiState = _scheduleEditUiState.asStateFlow()
@@ -96,11 +97,16 @@ class ScheduleEditViewModel @Inject constructor(
             startTime = finalStartTime,
             endTime = finalEndTime
         )
+        // update alarm
+        alarmScheduler.schedule(newActivity)
+
         viewModelScope.launch {
             newActivity.location?.let { locationRepository.addLocalLocation(it) }
+            // update activity locally and remotely
             activityRepository.updateLocalActivity(newActivity)
             activityRepository.updateRemoteActivity(newActivity)
 
+            // commit changes
             _scheduleEditUiState.update { it.copy(scheduleEditState = ScheduleEditState.SAVED) }
         }
     }

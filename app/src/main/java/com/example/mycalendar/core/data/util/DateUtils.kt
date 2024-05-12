@@ -2,11 +2,20 @@ package com.example.mycalendar.core.data.util
 
 import android.icu.util.Calendar
 import org.joda.time.DateTimeComparator
+import org.joda.time.DateTimeZone
+import org.joda.time.Instant
 import java.lang.Long.MAX_VALUE
 import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.math.abs
 import kotlin.math.min
+
+fun Date.toMillis(timezoneId: String): Long {
+    val time = Instant(this.time)
+    val asTimezoneZone = DateTimeZone.forID(timezoneId)
+    val relativeTime = time.toDateTime(asTimezoneZone)
+    return relativeTime.millis
+}
 
 fun Date.toDayNameInWeek(): String {
     val timeFormat = SimpleDateFormat("EEE")

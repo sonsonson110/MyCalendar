@@ -87,8 +87,8 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
 
     // hilt di
-    implementation("com.google.dagger:hilt-android:2.48")
-    kapt("com.google.dagger:hilt-android-compiler:2.48")
+    implementation("com.google.dagger:hilt-android:2.50")
+    kapt("com.google.dagger:hilt-android-compiler:2.50")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0") // with compose navigation
 
     // room database

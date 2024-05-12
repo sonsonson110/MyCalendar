@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
@@ -168,15 +167,23 @@ fun ScheduleDetailBottomSheetModal(
                         )
                     },
                     items = {
-                        Text(
-                            text = activity.conferenceUrl,
-                            color = urlColor,
-                            style = Typography.bodyLarge,
-                            textDecoration = TextDecoration.Underline,
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = activity.conferenceUrl,
+                                color = urlColor,
+                                style = Typography.bodyMedium,
+                                textDecoration = TextDecoration.Underline,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Icon(
+                                painter = painterResource(id = R.drawable.icon_open_in_new_24),
+                                contentDescription = "open",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.clickable { openBrowser(activity.conferenceUrl, context) }
+                            )
+                        }
                     }
                 )
-                Spacer(modifier = Modifier.height(8.dp))
             }
 
             // location
@@ -206,7 +213,6 @@ fun ScheduleDetailBottomSheetModal(
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
-                            Spacer(modifier = Modifier.width(8.dp))
                             Icon(
                                 painter = painterResource(id = R.drawable.icon_open_in_new_24),
                                 contentDescription = "open",
@@ -336,4 +342,10 @@ private fun openGoogleMapByLocation(location: Location, context: Context) {
     val mapIntent = Intent(Intent.ACTION_VIEW, mapIntentUri)
     mapIntent.setPackage("com.google.android.apps.maps")
     context.startActivity(mapIntent)
+}
+
+private fun openBrowser(url: String, context: Context) {
+    val uri = Uri.parse(url)
+    val browserIntent = Intent(Intent.ACTION_VIEW, uri)
+    context.startActivity(browserIntent)
 }
