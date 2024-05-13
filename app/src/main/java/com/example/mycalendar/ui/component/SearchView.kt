@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SearchView(
+    placeHolder: String,
     onNavigateBack: () -> Unit,
     query: String,
     onQueryChange: (String) -> Unit,
@@ -33,7 +34,7 @@ fun SearchView(
     Scaffold(
         topBar = {
             SearchViewTopBar(
-                placeHolder = "Add location",
+                placeHolder = placeHolder,
                 query = query,
                 onQueryChange = { onQueryChange(it) },
                 onNavigateBack = onNavigateBack,

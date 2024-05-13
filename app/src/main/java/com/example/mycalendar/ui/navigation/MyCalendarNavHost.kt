@@ -21,6 +21,7 @@ import com.example.mycalendar.feature.schedule.edit.ScheduleAddViewModel
 import com.example.mycalendar.feature.schedule.edit.ScheduleEditScreen
 import com.example.mycalendar.feature.schedule.edit.ScheduleEditViewModel
 import com.example.mycalendar.feature.schedule.list.ScheduleScreen
+import com.example.mycalendar.feature.search.ActivitySearchScreen
 import com.example.mycalendar.feature.search.LocationSearchScreen
 
 @Composable
@@ -50,6 +51,14 @@ fun MyCalendarNavHost(
         }
 
         composable(
+            route = NavDestination.ActivitySearch.route
+        ) {
+            ActivitySearchScreen(
+                onNavigateBack = { navController.popBackStack() },
+            )
+        }
+
+        composable(
             route = NavDestination.Signup.route
         ) {
             SignupScreen(
@@ -66,6 +75,14 @@ fun MyCalendarNavHost(
                     navController.navigate(route = "${graph.route}/$activityId")
                 },
                 navigateToScheduleAdd = { navController.navigate(route = NavGraph.ScheduleAddGraph.route) },
+                navigateToLoginPage = {
+                    navController.navigate(route = NavDestination.Login.route) {
+                        popUpTo(NavDestination.Schedule.route) {
+                            inclusive = true
+                        }
+                    }
+                },
+                navigateToActivitySearch = { navController.navigate(NavDestination.ActivitySearch.route) }
             )
         }
 
@@ -107,7 +124,9 @@ fun MyCalendarNavHost(
         navigation(
             startDestination = NavGraph.ScheduleEditGraph.ScheduleEdit.route,
             route = NavGraph.ScheduleEditGraph.routeWithArg!!,
-            arguments = listOf(navArgument(NavGraph.ScheduleEditGraph.navArg!!) { type = NavType.IntType })
+            arguments = listOf(navArgument(NavGraph.ScheduleEditGraph.navArg!!) {
+                type = NavType.IntType
+            })
         ) {
             composable(
                 route = NavGraph.ScheduleEditGraph.ScheduleEdit.route,

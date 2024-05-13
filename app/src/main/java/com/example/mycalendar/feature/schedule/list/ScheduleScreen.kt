@@ -68,6 +68,8 @@ fun ScheduleScreen(
     viewModel: ScheduleViewModel = hiltViewModel(),
     navigateToScheduleEdit: (Int) -> Unit,
     navigateToScheduleAdd: () -> Unit,
+    navigateToLoginPage: () -> Unit,
+    navigateToActivitySearch: () -> Unit,
 ) {
     val scheduleUiState by viewModel.scheduleUiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
@@ -86,7 +88,11 @@ fun ScheduleScreen(
     // snack bar
     val snackbarHostState = remember { SnackbarHostState() }
 
-    ScheduleModalNavigationDrawer(weather = scheduleUiState.weather, drawerState = drawerState) {
+    ScheduleModalNavigationDrawer(
+        weather = scheduleUiState.weather,
+        drawerState = drawerState,
+        onSignOut = { coroutineScope.launch { viewModel.onSignOut(); navigateToLoginPage() } }
+    ) {
         Scaffold(
             snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
             topBar = {
@@ -97,6 +103,7 @@ fun ScheduleScreen(
                             drawerState.apply { if (isClosed) open() else close() }
                         }
                     },
+                    onActivitySearchClick = navigateToActivitySearch,
                     onTodayScroll = {
                         if (scheduleUiState.activities.isEmpty())
                             coroutineScope.launch {
@@ -111,11 +118,12 @@ fun ScheduleScreen(
 
                         coroutineScope.launch {
                             listState.scrollToItem(todayIndex)
-                            if (!scheduleUiState.activities[todayIndex].startTime!!.isEqualIgnoreTimeTo(today))
+                            if (!scheduleUiState.activities[todayIndex].startTime!!.isEqualIgnoreTimeTo(
+                                    today
+                                )
+                            )
                                 snackbarHostState.showSnackbar("There is nothing to do today. Create one!")
                         }
-
-
                     })
             },
             floatingActionButton = {
@@ -213,6 +221,7 @@ fun ScheduleTopBar(
     date: Date,
     onDrawerToggle: () -> Unit,
     onTodayScroll: () -> Unit,
+    onActivitySearchClick: () -> Unit
 ) {
     Surface(shadowElevation = 3.dp) {
         TopAppBar(
@@ -238,7 +247,9 @@ fun ScheduleTopBar(
                     imageVector = Icons.Outlined.Search,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 12.dp)
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp)
+                        .clickable { onActivitySearchClick() }
                 )
                 Icon(
                     painter = painterResource(id = R.drawable.icon_outline_today_24),
@@ -266,7 +277,10 @@ fun ScheduleScreenPreview() {
             color = MaterialTheme.colorScheme.background
         ) {
             ScheduleScreen(
-                navigateToScheduleEdit = { }, navigateToScheduleAdd = {})
+                navigateToScheduleEdit = {},
+                navigateToScheduleAdd = {},
+                navigateToLoginPage = {},
+                navigateToActivitySearch = {})
         }
     }
 }

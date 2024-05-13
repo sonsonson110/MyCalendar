@@ -32,6 +32,7 @@ import com.example.mycalendar.core.data.model.Weather
 fun ScheduleModalNavigationDrawer(
     drawerState: DrawerState,
     weather: NetworkResult<Weather>,
+    onSignOut: () -> Unit,
     content: @Composable () -> Unit
 ) {
     ModalNavigationDrawer(
@@ -50,9 +51,9 @@ fun ScheduleModalNavigationDrawer(
                 WeatherSection(weather = weather)
                 Divider()
                 NavigationDrawerItem(
-                    label = { Text(text = "Drawer Item") },
+                    label = { Text(text = "Sign out") },
                     selected = false,
-                    onClick = { /*TODO*/ }
+                    onClick = onSignOut,
                 )
                 // ...other drawer items
             }

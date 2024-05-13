@@ -15,7 +15,8 @@ import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 interface ActivityRepository {
-    fun getAllPlainLocalActivities(): Flow<List<Activity>>
+    fun getAllPlainLocalActivityList(): Flow<List<Activity>>
+    fun getFilterPlainLocalActivityList(query: String): Flow<List<Activity>>
     suspend fun getLocalActivityDetailById(activityId: Int): Activity
     suspend fun addLocalActivity(activity: Activity): Int
     suspend fun updateLocalActivity(activity: Activity)
@@ -27,13 +28,19 @@ interface ActivityRepository {
 }
 
 private const val TAG = "ActivityRepositoryImpl"
+
 class ActivityRepositoryImpl @Inject constructor(
     private val activityDao: ActivityDao,
     private val firestore: FirebaseFirestore,
 ) :
     ActivityRepository {
-    override fun getAllPlainLocalActivities(): Flow<List<Activity>> {
+    override fun getAllPlainLocalActivityList(): Flow<List<Activity>> {
         return activityDao.getPlainList().map { it.map(ActivityEntity::toActivity) }
+    }
+
+    override fun getFilterPlainLocalActivityList(query: String): Flow<List<Activity>> {
+        return activityDao.getPlainListByQuery("%$query%")
+            .map { it.map(ActivityEntity::toActivity) }
     }
 
     override suspend fun getLocalActivityDetailById(activityId: Int): Activity {

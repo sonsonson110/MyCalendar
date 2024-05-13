@@ -20,6 +20,10 @@ interface ActivityDao {
     @Query("SELECT * FROM Activity WHERE id = :activityId")
     suspend fun getDetailOneById(activityId: Int): ActivityWithLocationAndUserAndParticipants
 
+    // filter activities by their title name contain a query string
+    @Query("SELECT * FROM Activity WHERE title LIKE :query")
+    fun getPlainListByQuery(query: String): Flow<List<ActivityEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(activityEntity: ActivityEntity): Long
 

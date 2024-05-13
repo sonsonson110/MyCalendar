@@ -30,6 +30,7 @@ fun LocationSearchScreen(
     onLocationSelected: (Location) -> Unit,
 ) {
     SearchView(
+        placeHolder = "Search location",
         query = query,
         onQueryChange = onQueryChange,
         onNavigateBack = onNavigateBack

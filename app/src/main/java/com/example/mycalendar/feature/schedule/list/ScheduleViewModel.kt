@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.mycalendar.core.alarm.AlarmScheduler
 import com.example.mycalendar.core.data.model.NetworkResult
 import com.example.mycalendar.core.data.repository.ActivityRepository
+import com.example.mycalendar.core.data.repository.AuthRepository
+import com.example.mycalendar.core.data.repository.UserRepository
 import com.example.mycalendar.core.data.repository.WeatherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +26,8 @@ class ScheduleViewModel @Inject constructor(
     private val activityRepository: ActivityRepository,
     private val weatherRepository: WeatherRepository,
     private val alarmScheduler: AlarmScheduler,
+    private val authRepository: AuthRepository,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
 
     private val _scheduleUiState: MutableStateFlow<ScheduleUiState> =
@@ -33,7 +37,7 @@ class ScheduleViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             // get activity list
-            activityRepository.getAllPlainLocalActivities()
+            activityRepository.getAllPlainLocalActivityList()
                 .collect { list ->
                     _scheduleUiState.update {
                         it.copy(
@@ -111,6 +115,13 @@ class ScheduleViewModel @Inject constructor(
         }
         // also update on firestore
         viewModelScope.launch { activityRepository.updateRemoteActivity(activity = newActivity) }
+    }
+
+    suspend fun onSignOut() {
+        val currentUser = userRepository.getCurrentUser()
+        // set user self check to false
+        userRepository.setCurrentUser(currentUser.copy(isSelf = false))
+        authRepository.signOutUser()
     }
 
     companion object {
