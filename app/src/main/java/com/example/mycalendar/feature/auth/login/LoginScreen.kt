@@ -74,20 +74,12 @@ fun LoginScreen(
             ) {
                 LoginTitle()
 
-                val coroutineScope = rememberCoroutineScope()
                 LoginForm(
                     loginState = loginUiState.loginState,
                     loginField = loginUiState.loginField,
                     errorMessage = loginUiState.errorMessage,
                     onLoginFieldChange = viewModel::updateLoginField,
-                    onLogin = {
-                        coroutineScope.launch {
-                            viewModel.signInWithEmailAndPassword()
-//                            if (loginUiState.loginState == LoginState.SUCCESS)
-                            // TODO: Implement navigation
-
-                        }
-                    },
+                    onLogin = viewModel::signInWithEmailAndPassword,
                     navigateToSignUpScreen = navigateToSignUpScreen,
                     navigateToScheduleScreen = navigateToScheduleScreen,
                 )

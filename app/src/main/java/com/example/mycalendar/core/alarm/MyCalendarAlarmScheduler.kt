@@ -26,7 +26,7 @@ class MyCalendarAlarmScheduler @Inject constructor(
         // get the relative time base on the default start time and time zone
         val relativeTime = activity.startTime!!.toMillis(activity.timeZone!!)
         // the time to set the alarm
-        val alarmMillis = relativeTime + activity.reminderOffsetSeconds * 1000 // to Millis
+        val alarmMillis = relativeTime - (activity.reminderOffsetSeconds * 1000) // to Millis
         // send the activityId with the intent
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("activityId", activity.id)

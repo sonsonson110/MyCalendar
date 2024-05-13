@@ -19,6 +19,13 @@
   - Location Api from https://docs.locationiq.com/api
 - Hide secret keys with [Secrets Gradle Plugin](https://github.com/google/secrets-gradle-plugin)
 
+## Project road map
+1. Cleaner code, adding a domain layer
+2. Synchronize user data
+3. Add event features:
+   - add someone to an event
+   - event live chat...
+
 ## Other researches
 - Sticky header: https://fvilarino.medium.com/creating-a-sticky-letter-list-in-jetpack-compose-2e7e9c8f9b91
 - Data grouping: https://www.youtube.com/watch?v=fG3FjhF2bCg
