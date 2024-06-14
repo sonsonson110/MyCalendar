@@ -3,6 +3,8 @@
 - App idea is inspired by Google Calendar (Simplified version)
 - Project structure is inspired by [NiaApp on Github](https://github.com/android/nowinandroid)
 > **Try my current release apk [HERE](app/release/app-release.apk)**
+## Demo video
+[![demo video](https://img.youtube.com/vi/dtpa6spcfFw/0.jpg)](https://youtu.be/dtpa6spcfFw)
 
 ## Features
 - Reminder feature: [Schedule alarms](https://developer.android.com/develop/background-work/services/alarms/schedule) and [notification](https://developer.android.com/develop/ui/views/notifications/build-notification)
